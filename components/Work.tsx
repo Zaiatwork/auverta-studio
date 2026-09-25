@@ -5,8 +5,9 @@ import Image from 'next/image'
 import { gsap, ScrollTrigger, useGSAP, MQ } from '@/lib/gsap'
 import { SHOWCASE } from '@/lib/content'
 
-// Wider than this and the preview pans sideways; taller (full-page screenshots) and it scrolls down.
-const CARD_ASPECT = 4 / 5
+// The card visual is 16:10. Images wider than that pan sideways on hover; taller ones
+// (e.g. full-page screenshots) scroll down through the page.
+const CARD_ASPECT = 16 / 10
 
 export default function Work() {
   const root = useRef<HTMLElement>(null)
@@ -74,10 +75,10 @@ export default function Work() {
         // Cards ease up into place as they enter from the right.
         cards.forEach((card) => {
           gsap.fromTo(
-            card.querySelector('.pf-card__frame'),
-            { clipPath: 'inset(14% 0% 14% 0% round 10px)' },
+            card.querySelector('article'),
+            { clipPath: 'inset(10% 0% 10% 0% round 12px)' },
             {
-              clipPath: 'inset(0% 0% 0% 0% round 10px)',
+              clipPath: 'inset(0% 0% 0% 0% round 12px)',
               ease: 'none',
               scrollTrigger: {
                 trigger: '.work__pin',
@@ -205,23 +206,20 @@ export default function Work() {
                       alt={item.image.alt}
                       width={item.image.width}
                       height={item.image.height}
-                      sizes="(max-width: 1024px) 80vw, 60vw"
+                      sizes="(max-width: 1024px) 88vw, 46vw"
                       className="pf-card__img"
                     />
                     <span className="pf-card__index">{item.id}</span>
                   </div>
                   <div className="pf-card__info">
-                    <p className="pf-card__discipline">{item.discipline}</p>
-                    <h3 className="pf-card__title" id={`pf-${item.id}`}>
-                      {item.title}
-                    </h3>
-                    <ul className="pf-card__services" aria-label="Services">
-                      {item.services.map((s) => (
-                        <li key={s} className="tag">
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="pf-card__head">
+                      <h3 className="pf-card__title" id={`pf-${item.id}`}>
+                        {item.title}
+                      </h3>
+                      <p className="pf-card__discipline">{item.discipline}</p>
+                    </div>
+                    <p className="pf-card__desc">{item.description}</p>
+                    <p className="pf-card__services">{item.services.join(' · ')}</p>
                   </div>
                 </article>
               </li>

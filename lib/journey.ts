@@ -58,10 +58,21 @@ function heroPose() {
   return joined(aspect < 1.5 ? 0.54 : 0.5, 0.02, 0.42)
 }
 
-/** Desktop: the full journey, with the Showcase frame and the portfolio hand-off. */
+/**
+ * The split pair. One rule holds for the whole journey, hero to footer: the two pieces
+ * (A = left stroke, B = right stroke) share one scale and one rotation, B always trails
+ * A diagonally down-and-right, and neither is ever hidden. Only the pair's position,
+ * spread, scale and a gentle rotation change with scroll, so every section reads as
+ * the same two objects continuing on their way. They only rejoin inside the footer.
+ */
+const pair = (ax: number, ay: number, bx: number, by: number, s: number, r: number) => ({
+  L: { x: ax, y: ay, s, r, o: 1 },
+  R: { x: bx, y: by, s, r, o: 1 },
+})
+
+/** Desktop: the full journey, with the portfolio set inside the enlarged mark. */
 function desktopKeys(): Keyframe[] {
   const vh = window.innerHeight
-  const vw = window.innerWidth
   const max = ScrollTrigger.maxScroll(window)
 
   const eq = ScrollTrigger.getById('eq-pin')
@@ -84,158 +95,97 @@ function desktopKeys(): Keyframe[] {
 
   const eqStart = eq ? eq.start : aboutTop + vh
   const eqEnd = eq ? eq.end : eqStart + vh
+  const travel = (from: number, to: number, t: number) => from + (to - from) * t
 
-  // Visible states are fully solid: a half-transparent glossy mark reads as grey plastic.
-  // Where copy is dense the halves stay in clear space or sit partly off-screen at the edges.
   const keys: Keyframe[] = [
-    // Hero: the complete mark, right of the headline.
+    // Hero: the mark, its two strokes composed right of the headline.
     { at: 0, state: { ...heroPose(), ...pose(-0.35, 0.12, 1) } },
-    // Leaving the hero: the halves part and head for opposite edges.
-    {
-      at: vh * 0.45,
-      state: {
-        L: { x: 0.18, y: 0.42, s: 0.34, r: 0.2, o: 1 },
-        R: { x: 0.9, y: -0.12, s: 0.36, r: 0.12, o: 1 },
-        ...pose(-0.1, 0.1, 0.8),
-      },
-    },
-    // Positioning statement: parked at the edges, mostly off-screen, framing the copy.
-    {
-      at: aboutTop,
-      state: {
-        L: { x: -1.22, y: 0.72, s: 0.3, r: 0.25, o: 1 },
-        R: { x: 1.2, y: -0.55, s: 0.32, r: 0.2, o: 1 },
-        ...pose(0.2, 0.05, 0.5),
-      },
-    },
-    // The equation (pinned): tips enter from the top-left and bottom-right corners, clear of the words and notes.
-    {
-      at: eqStart,
-      state: {
-        L: { x: -0.92, y: 1.1, s: 0.3, r: 0.95, o: 1 },
-        R: { x: 0.92, y: -1.1, s: 0.3, r: 0.75, o: 1 },
-        ...pose(0.1, 0.05, 0.4),
-      },
-    },
-    { at: eqEnd - vh * 1.1, state: {
-        L: { x: -0.92, y: 1.1, s: 0.3, r: 0.95, o: 1 },
-        R: { x: 0.92, y: -1.1, s: 0.3, r: 0.75, o: 1 },
-        ...pose(0.1, 0.05, 0.4),
-      },
-    },
-    // "Together, that's Auverta": with the words faded, the halves close in to flank the wordmark.
-    {
-      at: eqEnd - vh * 0.15,
-      state: {
-        L: { x: -0.74, y: 0.02, s: 0.34, r: 0.05, o: 1 },
-        R: { x: 0.74, y: -0.02, s: 0.34, r: 0.05, o: 1 },
-        ...pose(0, 0.04, 0.4),
-      },
-    },
+    // Scrolling begins: the pieces part along the diagonal and set off.
+    { at: vh * 0.45, state: { ...pair(0.22, 0.34, 0.86, -0.12, 0.34, 0.12), ...pose(-0.1, 0.1, 0.8) } },
+    // Positioning: the pair spans the page, A high on the left edge, B low on the right.
+    { at: aboutTop, state: { ...pair(-1.1, 0.7, 1.04, -0.55, 0.31, 0.22), ...pose(0.15, 0.05, 0.5) } },
+    // The equation (pinned): the pair opens to the corners, clear of the words and notes.
+    { at: eqStart, state: { ...pair(-0.94, 1.08, 0.94, -1.08, 0.3, 0.32), ...pose(0.1, 0.05, 0.4) } },
+    { at: eqEnd - vh * 1.1, state: { ...pair(-0.9, 1.05, 0.9, -1.05, 0.3, 0.26), ...pose(0.1, 0.05, 0.4) } },
+    // "Together, that's Auverta": the words fade and the pair closes in on the wordmark.
+    { at: eqEnd - vh * 0.15, state: { ...pair(-0.76, 0.12, 0.76, -0.12, 0.34, 0.08), ...pose(0, 0.04, 0.4) } },
     // Services: back out to the edges, behind the list and the image panel.
+    { at: servicesTop, state: { ...pair(-1.02, 0.45, 1.02, -0.35, 0.3, 0.2), ...pose(0.12, 0.05, 0.4) } },
+    { at: workStart - vh * 1.2, state: { ...pair(-1.02, 0.5, 1.02, -0.3, 0.3, 0.18), ...pose(0.1, 0.05, 0.4) } },
+    // A rises straight up the left margin first...
+    { at: workStart - vh * 0.9, state: { ...pair(-1.14, 1.22, 1.02, -0.22, 0.34, 0.16), ...pose(0.08, 0.05, 0.38) } },
+    // ...then, approaching the Showcase, crosses along the very top edge (clear of the services copy)
+    // while B holds the right edge; both start to grow.
+    { at: workStart - vh * 0.6, state: { ...pair(0.2, 1.24, 1.02, -0.12, 0.42, 0.14), ...pose(0.05, 0.05, 0.35) } },
+    // "Work in focus": the pair has grown into a large, still legible mark, the environment
+    // the portfolio will appear in. It stays right of the title, which keeps clear space.
+    { at: workStart, state: { ...pair(0.47, 0.08, 0.66, -0.03, 0.86, 0.04), ...pose(0, 0.02, 0.3) }, ease: 'power2.inOut' },
+    { at: workStart + workHold, state: { ...pair(0.43, 0.07, 0.63, -0.04, 0.86, 0.02), ...pose(0, 0.02, 0.3) } },
+    // Portfolio: the cards travel across in front while the pair keeps drifting behind them,
+    // slower and in the same direction, on the same scroll: two layers, one movement.
     {
-      at: servicesTop,
-      state: {
-        L: { x: -1.14, y: 0.35, s: 0.28, r: 0.3, o: 1 },
-        R: { x: 1.14, y: -0.3, s: 0.3, r: 0.2, o: 1 },
-        ...pose(0.15, 0.05, 0.4),
-      },
+      at: travel(workStart + workHold, workEnd, 0.5),
+      state: { ...pair(0.02, 0.1, 0.24, -0.06, 0.82, -0.04), ...pose(0.03, 0.03, 0.3) },
     },
-    // Approaching the Showcase: the halves gather just off the right edge.
     {
-      at: workStart - vh * 0.75,
-      state: {
-        L: { x: 1.15, y: 0.55, s: 0.26, r: 0.25, o: 1 },
-        R: { x: 1.3, y: -0.1, s: 0.55, r: 0.1, o: 1 },
-        ...pose(0.05, 0.05, 0.3),
-      },
+      at: travel(workStart + workHold, workEnd, 0.8),
+      state: { ...pair(-0.34, 0.12, -0.12, -0.08, 0.76, -0.08), ...pose(0.06, 0.03, 0.3) },
     },
-    // "Work in focus": one half sweeps in and expands to frame the right side of the screen.
-    {
-      at: workStart,
-      state: {
-        L: { x: 1.2, y: 1.4, s: 0.26, r: 0.3, o: 0 },
-        R: { x: 0.56, y: 0.04, s: 1.08, r: 0, o: 1 },
-        ...pose(0, 0, 0.25),
-      },
-      ease: 'power3.inOut',
-    },
-    // Held while the section is presented.
-    {
-      at: workStart + workHold,
-      state: {
-        L: { x: 1.2, y: 1.4, s: 0.26, r: 0.3, o: 0 },
-        R: { x: 0.54, y: 0.03, s: 1.05, r: 0, o: 1 },
-        ...pose(0, 0, 0.25),
-      },
-    },
-    // The portfolio slides in: the frame leaves to the left with the intro, like part of the
-    // first slide, shrinking as it goes so it is clear of the first card before the card arrives.
-    {
-      at: workStart + workHold + vw * 0.7,
-      state: {
-        L: { x: -1.4, y: 1.4, s: 0.26, r: 0.3, o: 0 },
-        R: { x: -1.7, y: 0.05, s: 0.6, r: -0.1, o: 1 },
-        ...pose(0, 0, 0.25),
-      },
-      ease: 'none',
-    },
-    // Hidden while the cards travel (it would only sit behind them).
-    {
-      at: workStart + workHold + vw * 1.05,
-      state: { ...joined(-1.55, 0.03, 0.3, -0.1, 0), ...pose(0, 0, 0.3) },
-    },
-    { at: workEnd - vh * 0.45, state: { ...joined(1.4, 0.3, 0.18, 0.4, 0), ...pose(-0.2, 0.08, 0.5) } },
-    // End of the portfolio: the mark re-enters from the right, complete again, following the travel.
-    { at: workEnd, state: { ...joined(1.02, 0.25, 0.18, 0.4, 1), ...pose(-0.2, 0.08, 0.5) } },
-    // Why Auverta: resting on the right edge, clear of the heading, map and values.
-    { at: whyTop + vh * 0.4, state: { ...joined(1.06, -0.05, 0.2, -0.3, 1), ...pose(0.25, 0.08, 0.5) } },
-    // Process (pinned): travels along the top edge, against the horizontal movement
-    // (entering from the right keeps it clear of the heading on the left).
-    { at: procStart, state: { ...joined(0.86, 0.88, 0.09, 0.2, 1), ...pose(-0.2, 0.05, 0.4) } },
-    { at: procEnd, state: { ...joined(-0.86, 0.88, 0.09, -0.6, 1), ...pose(0.2, 0.05, 0.4) } },
-    // Final CTA: settles below the buttons, the headline left clear.
-    { at: ctaMid, state: { ...joined(0, -0.62, 0.12, 0, 1), ...pose(-0.15, 0.1, 0.5) } },
-    // Contact: zooms out and drifts to the right edge, beside the form.
-    { at: contactTop + vh * 0.3, state: { ...joined(1.0, 0.05, 0.1, 0.2, 1), ...pose(0.2, 0.05, 0.3) } },
-    // Footer comes into view: descends towards the lockup.
+    // Last cards: while they still cover the middle, the same pair shrinks and spreads back
+    // out to the edges on its diagonal, so the next section opens on clear space.
+    { at: workEnd, state: { ...pair(-1.02, 0.5, 1.02, -0.4, 0.32, -0.04), ...pose(0.1, 0.05, 0.4) } },
+    { at: whyTop + vh * 0.4, state: { ...pair(-1.0, 0.46, 1.0, -0.36, 0.3, 0.02), ...pose(0.12, 0.06, 0.4) } },
+    // Process (pinned): the pair opens to the corners again and drifts with the horizontal travel.
+    // A stays just off the left edge until the heading has scrolled away, then eases into its corner.
+    { at: procStart, state: { ...pair(-1.02, 0.92, 1.02, -0.95, 0.26, 0.1), ...pose(0.1, 0.05, 0.35) } },
+    { at: procEnd, state: { ...pair(-0.9, 1.0, 0.9, -1.0, 0.26, 0.22), ...pose(-0.1, 0.05, 0.35) } },
+    // Final CTA: the pair flanks the headline from the edges.
+    { at: ctaMid, state: { ...pair(-1.0, 0.38, 1.0, -0.38, 0.28, 0.14), ...pose(0, 0.05, 0.3) } },
+    // Contact: calmer now, a little smaller, still on its diagonal.
+    { at: contactTop + vh * 0.3, state: { ...pair(-1.0, 0.5, 1.0, -0.44, 0.22, 0.08), ...pose(0.05, 0.04, 0.2) } },
+    // Footer approaches: the pieces slow, scale down and sink to the bottom corners...
     {
       at: Math.max(footerTop - vh, contactTop + vh * 0.35),
-      state: { ...joined(0.55, -0.35, 0.1, 0.1, 1), ...pose(0.1, 0.03, 0.2) },
+      state: { ...pair(-0.96, -0.92, 0.96, -1.04, 0.14, 0.04), ...pose(0.03, 0.02, 0.15) },
     },
-    // Settled: the mark sits in the footer lockup, face-on.
+    // ...then close in beneath the lockup slot and rise into it together with the footer,
+    // staying below the footer copy the whole way (the slot is 0.25vh lower at this point).
+    {
+      at: max - vh * 0.25,
+      state: {
+        ...pair(lock.x - 0.05, lock.y - 0.5, lock.x + 0.12, lock.y - 0.58, lock.s * 1.1, 0.02),
+        ...pose(0.02, 0.01, 0.05),
+      },
+    },
+    // Settled: the two pieces finally rejoin, face-on, in the footer lockup.
     { at: max, state: { ...joined(lock.x, lock.y, lock.s, 0, 1), ...pose(0, 0, 0) }, ease: 'power2.out' },
   ]
   return sanitize(keys)
 }
 
-/** Tablet and phone: a simplified journey along the right edge, still ending in the footer. */
+/** Tablet and phone: the same split pair on a simpler path along the edges, ending in the footer. */
 function compactKeys(): Keyframe[] {
   const vh = window.innerHeight
   const max = ScrollTrigger.maxScroll(window)
   const footerTop = docTop('.footer')
+  const workTop = docTop('#work')
   const lock = footerTarget(max)
-  // Solid, and mostly off the right edge so it never sits over text on narrow screens.
-  const edge = (y: number, r: number, o = 1) => ({ ...joined(1.1, y, 0.1, r, o), ...pose(0, 0.05, 0) })
+  // Mostly off-screen tips on narrow screens, so they never sit over text.
+  const edges = (tilt: number, r: number) => ({ ...pair(-1.12, 0.6 + tilt, 1.12, -0.5 + tilt, 0.1, r), ...pose(0, 0.05, 0) })
 
   const keys: Keyframe[] = [
     { at: 0, state: { ...heroPose(), ...pose(-0.3, 0.1, 0) } },
-    { at: vh * 0.8, state: edge(0.62, 0.3) },
-    { at: docTop('#about'), state: edge(-0.6, 0.8) },
-    { at: docTop('#services'), state: edge(0.6, 1.3) },
-    // Showcase: one half grows along the right edge while the title is on screen.
-    {
-      at: docTop('#work'),
-      state: {
-        L: { x: 0.8, y: -0.8, s: 0.1, r: 1.3, o: 0 },
-        R: { x: 1.15, y: 0.4, s: 0.36, r: 0, o: 1 },
-        ...pose(0, 0, 0),
-      },
-    },
-    { at: docTop('#why'), state: edge(-0.62, 1.8) },
-    { at: docTop('#process'), state: edge(0.62, 2.3) },
-    { at: docTop('#contact'), state: edge(-0.6, 2.8) },
-    { at: Math.max(footerTop - vh, docTop('#contact') + 10), state: { ...joined(0.3, -0.4, 0.09, 0.2, 0.9), ...pose(0, 0, 0) } },
+    { at: vh * 0.8, state: edges(0, 0.2) },
+    { at: docTop('#about'), state: edges(-0.1, 0.35) },
+    { at: docTop('#services'), state: edges(0.05, 0.5) },
+    // Portfolio: the pair grows behind the swipeable cards, then carries on.
+    { at: workTop, state: { ...pair(-0.75, 0.35, 0.95, -0.15, 0.28, 0.2), ...pose(0, 0.02, 0) } },
+    { at: workTop + docHeight('#work') - vh * 0.6, state: { ...pair(-0.9, 0.2, 1.0, -0.3, 0.28, 0.1), ...pose(0, 0.02, 0) } },
+    { at: docTop('#why'), state: edges(0, 0.25) },
+    { at: docTop('#process'), state: edges(-0.08, 0.4) },
+    { at: docTop('#contact'), state: edges(0.04, 0.3) },
+    { at: Math.max(footerTop - vh, docTop('#contact') + 10), state: { ...pair(-1.0, -0.9, 1.0, -1.02, 0.09, 0.05), ...pose(0, 0, 0) } },
+    { at: max - vh * 0.25, state: { ...pair(lock.x - 0.06, lock.y - 0.5, lock.x + 0.14, lock.y - 0.56, lock.s * 1.1, 0.02), ...pose(0, 0, 0) } },
     { at: max, state: { ...joined(lock.x, lock.y, lock.s, 0, 1), ...pose(0, 0, 0) }, ease: 'power2.out' },
   ]
   return sanitize(keys)
@@ -254,7 +204,7 @@ export function buildKeyframes(mode: 'desktop' | 'compact') {
 }
 
 const easeCache = new Map<string, (t: number) => number>()
-const getEase = (name = 'power1.inOut') => {
+const getEase = (name = 'sine.inOut') => {
   let fn = easeCache.get(name)
   if (!fn) {
     fn = gsap.parseEase(name) as (t: number) => number

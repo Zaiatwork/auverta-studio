@@ -1110,16 +1110,23 @@ html.menu-open { overflow: hidden; }
 }
 .work__spacer { display: none; }
 
+/* Portfolio card: a wide 16:10 visual over a solid info row. Opaque throughout, so it reads
+   cleanly in front of the enlarged journey mark. No borders or heavy shadows. */
 .pf-card {
-  width: clamp(17rem, 78vw, 26rem);
+  width: clamp(18rem, 86vw, 30rem);
   scroll-snap-align: start;
   scroll-margin-left: var(--gutter);
 }
+.pf-card > article {
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 30px 60px -40px rgb(11 11 18 / 0.35);
+}
 .pf-card__frame {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: 10px;
   background: #0b0b10;
   isolation: isolate;
   transform: translateZ(0);
@@ -1127,15 +1134,7 @@ html.menu-open { overflow: hidden; }
 /* Wide images fill the height and pan sideways; tall ones fill the width and scroll down. */
 .pf-card[data-pan='x'] .pf-card__img { position: absolute; top: 0; left: 0; height: 100%; width: auto; max-width: none; }
 .pf-card[data-pan='y'] .pf-card__img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
-.pf-card__img { will-change: transform; transition: filter 0.6s ease; }
-.pf-card__frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
-  pointer-events: none;
-}
+.pf-card__img { will-change: transform; }
 .pf-card__index {
   position: absolute;
   top: 1rem;
@@ -1152,26 +1151,45 @@ html.menu-open { overflow: hidden; }
   -webkit-backdrop-filter: blur(8px);
 }
 
-.pf-card__info { padding-top: 1.35rem; }
-.pf-card__discipline {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--hl);
-  margin-bottom: 0.7rem;
+.pf-card__info { padding: clamp(1.1rem, 1.6vw, 1.6rem) clamp(1.2rem, 1.8vw, 1.75rem) clamp(1.2rem, 1.8vw, 1.75rem); }
+.pf-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
 }
 .pf-card__title {
-  font-size: clamp(1.3rem, 1.9vw, 1.9rem);
+  font-size: clamp(1.15rem, 1.6vw, 1.6rem);
   line-height: 1.05;
   color: var(--fg);
-  margin-bottom: 1rem;
 }
-.pf-card__services { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-
-.pf-card .tag { transition: border-color 0.4s ease, color 0.4s ease; }
-.pf-card:hover .tag,
-.pf-card.is-active .tag { border-color: rgb(var(--hl-rgb) / 0.4); color: var(--text-strong); }
+.pf-card__discipline {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hl);
+  text-align: right;
+}
+.pf-card__desc {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pf-card__services {
+  margin-top: 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
 
 .work__outro {
   width: clamp(15rem, 70vw, 22rem);
@@ -1185,7 +1203,16 @@ html.menu-open { overflow: hidden; }
 .work__outro p { font-size: 1.15rem; color: var(--text); line-height: 1.5; }
 
 .work__rail { display: flex; align-items: center; gap: 1.5rem; margin-top: clamp(2rem, 4vw, 3rem); }
-.work__count { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.18em; color: var(--text-soft); white-space: nowrap; }
+.work__count {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text-soft);
+  white-space: nowrap;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgb(var(--bg-rgb) / 0.85); /* stays legible over the journey mark */
+}
 .work__count-current { color: var(--hl); }
 .work__rail-line { position: relative; flex: 1; height: 1px; background: var(--line); }
 .work__rail-fill { position: absolute; inset: 0; background: var(--hl); transform: scaleX(0); transform-origin: left; }
@@ -1217,12 +1244,11 @@ html.menu-open { overflow: hidden; }
   .work.is-pinned .work__viewport { overflow: visible; scroll-snap-type: none; }
   .work.is-pinned .work__track { padding-inline: 0 var(--gutter); will-change: transform; align-items: center; }
   .work.is-pinned .work__spacer { display: block; width: 100vw; flex-shrink: 0; margin-right: calc(-1 * clamp(1.25rem, 2.2vw, 2.25rem)); }
-  .work.is-pinned .pf-card { width: clamp(22rem, 28vw, 30rem); }
-  .work.is-pinned .pf-card__frame { aspect-ratio: auto; height: min(58svh, 36vw); }
+  /* Big enough to feel like a showcase, small enough that the next card is always in view. */
+  .work.is-pinned .pf-card { width: min(44vw, 64svh * 1.6, 46rem); }
   .work.is-pinned .work__rail { position: absolute; left: 0; right: 0; bottom: 2.5rem; margin: 0; }
 
-  .pf-card__frame { transition: transform 0.9s var(--ease-standard); }
-  .pf-card:hover .pf-card__frame { transform: translateY(-6px); }
+
 }
 
 /* ─── Why Auverta ─── */
@@ -1741,6 +1767,9 @@ html.menu-open { overflow: hidden; }
   .contact__details { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; gap: 1.75rem; }
   .form-submit .btn { width: 100%; }
+
+  .pf-card__head { flex-direction: column; align-items: flex-start; gap: 0.45rem; }
+  .pf-card__discipline { text-align: left; }
 
   .footer__top { grid-template-columns: 1fr; gap: 2.25rem; }
   .lockup { --lockup-h: 8vw; }
