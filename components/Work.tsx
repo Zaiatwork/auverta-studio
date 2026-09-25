@@ -2,8 +2,11 @@
 
 import { useRef } from 'react'
 import Image from 'next/image'
-import { gsap, useGSAP, MQ } from '@/lib/gsap'
+import { gsap, ScrollTrigger, useGSAP, MQ } from '@/lib/gsap'
 import { SHOWCASE } from '@/lib/content'
+
+// Wider than this and the preview pans sideways; taller (full-page screenshots) and it scrolls down.
+const CARD_ASPECT = 4 / 5
 
 export default function Work() {
   const root = useRef<HTMLElement>(null)
@@ -14,118 +17,232 @@ export default function Work() {
 
       mm.add(MQ.motion, () => {
         gsap.fromTo(
-          '.work .section-header > *',
+          '.work__intro > *',
           { autoAlpha: 0, y: 36 },
-          { autoAlpha: 1, y: 0, stagger: 0.12, scrollTrigger: { trigger: '.work .section-header', start: 'top 82%' } }
+          { autoAlpha: 1, y: 0, stagger: 0.1, scrollTrigger: { trigger: root.current, start: 'top 70%' } }
         )
-
-        // Sticky cards can't be measured reliably as triggers, so every trigger is
-        // the static zero-height marker placed just before its card in the flow.
-        const markers = gsap.utils.toArray<HTMLElement>('.work-card__marker')
-        gsap.utils.toArray<HTMLElement>('.work-card').forEach((card, i) => {
-          const marker = markers[i]
-          const frame = card.querySelector('.work-card__inner')
-          const img = card.querySelector('.work-card__img')
-          const info = card.querySelectorAll('.work-card__info > *')
-
-          // Reveal: the whole card opens out from an inset, the image settles from a slight zoom.
-          gsap.fromTo(
-            frame,
-            { clipPath: 'inset(10% 7% 10% 7% round 10px)' },
-            { clipPath: 'inset(0% 0% 0% 0% round 10px)', ease: 'none', scrollTrigger: { trigger: marker, start: 'top 100%', end: 'top 35%', scrub: true } }
-          )
-          gsap.fromTo(
-            img,
-            { scale: 1.25 },
-            { scale: 1, ease: 'none', scrollTrigger: { trigger: marker, start: 'top bottom', end: 'top top', scrub: true } }
-          )
-          gsap.fromTo(
-            info,
-            { autoAlpha: 0, y: 30 },
-            { autoAlpha: 1, y: 0, stagger: 0.08, scrollTrigger: { trigger: marker, start: 'top 40%' } }
-          )
-        })
       })
 
-      // Desktop: cards are sticky (CSS); each one recedes as the next slides over it.
+      // Desktop: the same language as Strategic Process. The section pins, holds on the
+      // intro while the icon frames it, then the portfolio travels horizontally.
       mm.add(MQ.desktop, () => {
-        const cards = gsap.utils.toArray<HTMLElement>('.work-card')
-        const markers = gsap.utils.toArray<HTMLElement>('.work-card__marker')
-        cards.forEach((card, i) => {
-          const next = markers[i + 1]
-          if (!next) return
-          const st = { trigger: next, start: 'top bottom', end: 'top 12%', scrub: true }
-          gsap.to(card.querySelector('.work-card__inner'), { scale: 0.9, ease: 'none', scrollTrigger: st })
-          gsap.to(card.querySelector('.work-card__shade'), { opacity: 0.75, ease: 'none', scrollTrigger: { ...st } })
+        const section = root.current!
+        section.classList.add('is-pinned')
+        const track = section.querySelector<HTMLElement>('.work__track')!
+        const intro = section.querySelector<HTMLElement>('.work__intro')!
+        const cards = gsap.utils.toArray<HTMLElement>('.pf-card')
+        const counter = section.querySelector<HTMLElement>('.work__count-current')!
+
+        const hold = () => window.innerHeight * 0.55 // keep in sync with lib/journey.ts
+        const distance = () => track.scrollWidth - window.innerWidth
+
+        const pin = ScrollTrigger.create({
+          id: 'work-pin', // the icon journey anchors to this pin
+          trigger: '.work__pin',
+          start: 'top top',
+          end: () => `+=${hold() + distance()}`,
+          pin: true,
+          invalidateOnRefresh: true,
         })
+
+        let current = -1
+        const setActive = (progress: number) => {
+          const i = Math.min(cards.length - 1, Math.max(0, Math.floor(progress * cards.length * 1.05 - 0.15)))
+          if (i === current) return
+          current = i
+          cards.forEach((el, j) => el.classList.toggle('is-active', j === i))
+          counter.textContent = String(i + 1).padStart(2, '0')
+        }
+
+        gsap.to([track, intro], {
+          x: () => -distance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.work__pin',
+            start: () => pin.start + hold(),
+            end: () => pin.start + hold() + distance(),
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              gsap.set('.work__rail-fill', { scaleX: self.progress })
+              setActive(self.progress)
+            },
+            onRefresh: (self) => setActive(self.progress),
+          },
+        })
+
+        // Cards ease up into place as they enter from the right.
+        cards.forEach((card) => {
+          gsap.fromTo(
+            card.querySelector('.pf-card__frame'),
+            { clipPath: 'inset(14% 0% 14% 0% round 10px)' },
+            {
+              clipPath: 'inset(0% 0% 0% 0% round 10px)',
+              ease: 'none',
+              scrollTrigger: {
+                trigger: '.work__pin',
+                start: () => pin.start + hold() + Math.max(0, card.offsetLeft - window.innerWidth),
+                end: () => pin.start + hold() + Math.max(0, card.offsetLeft - window.innerWidth * 0.45),
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            }
+          )
+        })
+
+        return () => section.classList.remove('is-pinned')
       })
+
+      // Touch / smaller screens: the track is a native swipe scroller; keep the counter and rail in step.
+      const viewport = root.current!.querySelector<HTMLElement>('.work__viewport')!
+      const count = root.current!.querySelector<HTMLElement>('.work__count-current')!
+      const fill = root.current!.querySelector<HTMLElement>('.work__rail-fill')!
+      const onSwipe = () => {
+        if (root.current!.classList.contains('is-pinned')) return
+        const max = viewport.scrollWidth - viewport.clientWidth
+        const p = max > 0 ? viewport.scrollLeft / max : 0
+        fill.style.transform = `scaleX(${p})`
+        count.textContent = String(Math.min(SHOWCASE.length, Math.round(p * (SHOWCASE.length - 1)) + 1)).padStart(2, '0')
+      }
+      viewport.addEventListener('scroll', onSwipe, { passive: true })
+
+      // Hover preview: the image drifts through the project, like a live preview.
+      const cleanups = gsap.utils.toArray<HTMLElement>('.pf-card').map((card) => {
+        const frame = card.querySelector<HTMLElement>('.pf-card__frame')!
+        const img = card.querySelector<HTMLElement>('.pf-card__img')!
+        const axis = card.dataset.pan === 'y' ? 'y' : 'x'
+        let loop: gsap.core.Tween | null = null
+        const overflow = () =>
+          axis === 'x' ? Math.max(0, img.offsetWidth - frame.clientWidth) : Math.max(0, img.offsetHeight - frame.clientHeight)
+        const rest = () => (axis === 'x' ? -overflow() / 2 : 0)
+        const place = () => gsap.set(img, { [axis]: rest() })
+        place()
+
+        const enter = (e: PointerEvent) => {
+          if (e.pointerType !== 'mouse' || window.matchMedia(MQ.reduced).matches) return
+          const o = overflow()
+          if (!o) return
+          loop?.kill()
+          const secs = Math.max(3, o / 70)
+          // Sideways: drift to the start, then glide end to end. Down: scroll the page and back.
+          loop = gsap.to(img, {
+            [axis]: axis === 'x' ? 0 : -o,
+            duration: axis === 'x' ? secs / 2 : secs,
+            ease: 'sine.inOut',
+            onComplete: () => {
+              loop = gsap.to(img, {
+                [axis]: axis === 'x' ? -o : 0,
+                duration: secs,
+                ease: 'sine.inOut',
+                repeat: -1,
+                yoyo: true,
+                repeatDelay: 0.4,
+              })
+            },
+          })
+        }
+        const leave = () => {
+          loop?.kill()
+          loop = gsap.to(img, { [axis]: rest(), duration: 1.1, ease: 'power3.out' })
+        }
+        card.addEventListener('pointerenter', enter)
+        card.addEventListener('pointerleave', leave)
+        const onRefresh = () => {
+          loop?.kill()
+          place()
+        }
+        ScrollTrigger.addEventListener('refresh', onRefresh)
+        return () => {
+          loop?.kill()
+          card.removeEventListener('pointerenter', enter)
+          card.removeEventListener('pointerleave', leave)
+          ScrollTrigger.removeEventListener('refresh', onRefresh)
+        }
+      })
+
+      return () => {
+        viewport.removeEventListener('scroll', onSwipe)
+        cleanups.forEach((fn) => fn())
+      }
     },
     { scope: root }
   )
 
+  const total = String(SHOWCASE.length).padStart(2, '0')
+
   return (
-    <section ref={root} className="section work" id="work" aria-labelledby="work-title">
-      <div className="container">
-        <header className="section-header section-header--split">
-          <div>
-            <p className="section-eyebrow">Showcase</p>
-            <h2 className="section-title" id="work-title">
-              Work in <em>focus.</em>
-            </h2>
-          </div>
+    <section ref={root} className="work" id="work" aria-labelledby="work-title">
+      <div className="work__pin">
+        {/* Moves with the track on desktop (it reads as the first slide); stacks above it on smaller screens. */}
+        <div className="work__intro container">
+          <p className="section-eyebrow">Showcase</p>
+          <h2 className="section-title work__title" id="work-title">
+            Work in <em>focus.</em>
+          </h2>
           <p className="section-subtitle">
             Studio pieces across web, brand, AI and growth, showing the craft we bring to every engagement. Client case
             studies are shared on request.
           </p>
-        </header>
-      </div>
+          <p className="work__hint" aria-hidden="true">
+            <span className="work__hint-line" /> Scroll to explore
+          </p>
+        </div>
 
-      <div className="work__stack">
-        {SHOWCASE.map((item, i) => [
-          <span key={`m-${item.id}`} className="work-card__marker" aria-hidden="true" />,
-          <article
-            key={item.id}
-            className="work-card"
-            style={{ '--i': i } as React.CSSProperties}
-            aria-labelledby={`work-${item.id}`}
-            data-cursor="view"
-          >
-            <div className="work-card__inner">
-              <div className="work-card__media">
-                <Image
-                  src={item.image.src}
-                  alt={item.image.alt}
-                  fill
-                  sizes="100vw"
-                  className="work-card__img"
-                  quality={75}
-                />
-                <div className="work-card__gradient" aria-hidden="true" />
-              </div>
+        <div className="work__viewport">
+          <ol className="work__track" aria-label="Portfolio">
+            <li className="work__spacer" aria-hidden="true" />
+            {SHOWCASE.map((item) => (
+              <li
+                key={item.id}
+                className="pf-card"
+                data-pan={item.image.width / item.image.height > CARD_ASPECT ? 'x' : 'y'}
+                data-cursor="view"
+              >
+                <article aria-labelledby={`pf-${item.id}`}>
+                  <div className="pf-card__frame">
+                    <Image
+                      src={item.image.src}
+                      alt={item.image.alt}
+                      width={item.image.width}
+                      height={item.image.height}
+                      sizes="(max-width: 1024px) 80vw, 60vw"
+                      className="pf-card__img"
+                    />
+                    <span className="pf-card__index">{item.id}</span>
+                  </div>
+                  <div className="pf-card__info">
+                    <p className="pf-card__discipline">{item.discipline}</p>
+                    <h3 className="pf-card__title" id={`pf-${item.id}`}>
+                      {item.title}
+                    </h3>
+                    <ul className="pf-card__services" aria-label="Services">
+                      {item.services.map((s) => (
+                        <li key={s} className="tag">
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              </li>
+            ))}
+            <li className="work__outro">
+              <p>Want to see work relevant to your industry?</p>
+              <a href="#contact" className="link-arrow" data-cursor="start">
+                Request the full portfolio <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          </ol>
+        </div>
 
-              <div className="container work-card__info">
-                <p className="work-card__index">
-                  <span>{item.id}</span> / {String(SHOWCASE.length).padStart(2, '0')}
-                </p>
-                <h3 className="work-card__title" id={`work-${item.id}`}>
-                  {item.title}
-                </h3>
-                <div className="work-card__meta">
-                  <p className="work-card__discipline">{item.discipline}</p>
-                  <p className="work-card__desc">{item.description}</p>
-                </div>
-              </div>
-              <div className="work-card__shade" aria-hidden="true" />
-            </div>
-          </article>,
-        ])}
-      </div>
-
-      <div className="container work__footer">
-        <p>Want to see work relevant to your industry?</p>
-        <a href="#contact" className="link-arrow" data-cursor="start">
-          Request the full portfolio <span aria-hidden="true">→</span>
-        </a>
+        <div className="container work__rail" aria-hidden="true">
+          <span className="work__count">
+            <span className="work__count-current">01</span> / {total}
+          </span>
+          <span className="work__rail-line">
+            <span className="work__rail-fill" />
+          </span>
+        </div>
       </div>
     </section>
   )

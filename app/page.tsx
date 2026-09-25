@@ -11,10 +11,11 @@ import Contact from '@/components/Contact'
 import Footer from '@/components/Footer'
 import CustomCursor from '@/components/CustomCursor'
 import SmoothScroll from '@/components/SmoothScroll'
+import IconJourney from '@/components/IconJourney'
 
 // Server component: sections that need the browser opt in with 'use client'
 // individually. Testimonials are intentionally omitted until real client
-// quotes exist — the live site only has placeholder text.
+// quotes exist; the live site only has placeholder text.
 export default function HomePage() {
   return (
     <>
@@ -22,6 +23,8 @@ export default function HomePage() {
         Skip to content
       </a>
       <CustomCursor />
+      {/* The travelling Auverta mark: one fixed layer behind every section, hero to footer. */}
+      <IconJourney />
       <SmoothScroll>
         <Navigation />
         <main id="main">

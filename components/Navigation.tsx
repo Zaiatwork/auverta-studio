@@ -12,13 +12,17 @@ export default function Navigation() {
   const [active, setActive] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
 
-  // Solid background after leaving the top; hide while scrolling down, reveal on scroll up.
+  // Floating bar after leaving the top; hide while scrolling down, reveal on scroll up.
+  // The hairline under the bar tracks the journey's progress from hero to footer.
   useEffect(() => {
     let lastY = window.scrollY
     let ticking = false
     const update = () => {
       const y = window.scrollY
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      headerRef.current?.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0))
       setScrolled(y > 40)
       if (Math.abs(y - lastY) > 6) {
         setHidden(y > lastY && y > window.innerHeight * 0.6)
@@ -79,6 +83,7 @@ export default function Navigation() {
   return (
     <>
       <header
+        ref={headerRef}
         className={`nav${scrolled ? ' is-scrolled' : ''}${hidden && !mobileOpen ? ' is-hidden' : ''}${mobileOpen ? ' is-open' : ''}`}
       >
         <div className="container nav__inner">
@@ -120,6 +125,7 @@ export default function Navigation() {
             <span />
             <span />
           </button>
+          <span className="nav__progress" aria-hidden="true" />
         </div>
       </header>
 

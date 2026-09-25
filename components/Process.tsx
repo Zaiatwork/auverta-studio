@@ -40,6 +40,7 @@ export default function Process() {
           x: () => -distance(),
           ease: 'none',
           scrollTrigger: {
+            id: 'process-pin', // the icon journey anchors to this pin
             trigger: '.process__pin',
             start: 'top top',
             end: () => `+=${distance()}`,

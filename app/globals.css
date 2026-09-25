@@ -39,7 +39,7 @@
   --bg-rgb: 244 243 239;
   --fg-rgb: 11 11 18;
   --bg: rgb(var(--bg-rgb));
-  --bg-alt: #ebe9e3;
+  --bg-alt: rgb(var(--fg-rgb) / 0.035); /* translucent: the journey mark travels behind it */
   --surface: #ffffff;
   --surface-2: #faf9f6;
   --fg: rgb(var(--fg-rgb));
@@ -65,7 +65,7 @@
   color-scheme: dark;
   --bg-rgb: 0 0 0;
   --fg-rgb: 255 255 255;
-  --bg-alt: #0b0b10;
+  --bg-alt: rgb(var(--fg-rgb) / 0.03);
   --surface: #101016;
   --surface-2: #17171f;
   --text-strong: rgb(var(--fg-rgb) / 0.92);
@@ -104,7 +104,9 @@ html {
 }
 
 body {
-  background-color: var(--bg);
+  /* Transparent on purpose: <html> paints the page colour, and an opaque body would
+     cover the z-index:-1 journey layer (block backgrounds paint above negative z-index). */
+  background-color: transparent;
   color: var(--fg);
   font-family: var(--font-body);
   font-weight: 300;
@@ -160,9 +162,24 @@ html.menu-open { overflow: hidden; }
 .reveal-fallback [data-hero] { opacity: 1 !important; visibility: visible !important; }
 .reveal-fallback .hero__line-inner { transform: none !important; }
 
+/* ─── Icon journey layer ───
+   Fixed behind every section (z-index -1 paints above the page background but below all
+   content), never interactive. Section backgrounds are transparent or translucent so the
+   travelling mark reads through them; cards and images stay opaque and pass over it. */
+
+.journey {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease 0.15s;
+}
+.has-journey .journey { opacity: 1; }
+
 /* ─── Display type (GHIGA) ─── */
 
-:is(.hero__headline, .section-title, .eq-word, .work-card__title, .cta__headline, .cta__bg-text,
+:is(.hero__headline, .section-title, .eq-word, .pf-card__title, .lockup__letter, .cta__headline, .cta__bg-text,
   .service-item__title, .why__quote p, .nav__mobile-link, .marquee__item--display, .positioning__number, .process-step__number) {
   font-family: var(--font-display);
   font-weight: 400;
@@ -231,7 +248,7 @@ html.menu-open { overflow: hidden; }
 }
 
 .section-subtitle {
-  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+  font-size: clamp(1.05rem, 1.25vw, 1.15rem);
   font-weight: 300;
   color: var(--text);
   max-width: 44ch;
@@ -239,7 +256,7 @@ html.menu-open { overflow: hidden; }
 }
 
 .tag {
-  font-size: 0.62rem;
+  font-size: 0.66rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -402,26 +419,49 @@ html.menu-open { overflow: hidden; }
   height: var(--nav-height);
   display: flex;
   align-items: center;
-  transition: transform 0.6s var(--ease-standard), background-color 0.4s ease, border-color 0.4s ease,
-    height 0.4s var(--ease-out);
-  border-bottom: 1px solid transparent;
+  transition: transform 0.7s var(--ease-standard), height 0.5s var(--ease-standard);
 }
-.nav.is-scrolled {
-  --nav-height: 68px;
-  background: rgb(var(--bg-rgb) / 0.72);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border-color: var(--line);
-}
-.nav.is-hidden { transform: translateY(-100%); }
-.nav.is-open { background: transparent; border-color: transparent; backdrop-filter: none; }
+.nav.is-hidden { transform: translateY(-110%); }
 
 .nav__inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: background-color 0.5s ease, border-color 0.5s ease, padding 0.6s var(--ease-standard),
+    max-width 0.6s var(--ease-standard), box-shadow 0.5s ease;
 }
+/* Scrolled: the bar condenses into a floating pill, echoing the buttons and tags. */
+.nav.is-scrolled { --nav-height: 76px; }
+.nav.is-scrolled .nav__inner {
+  max-width: calc(var(--max-width) - 2 * var(--gutter) + 2.5rem);
+  padding: 0.55rem 0.55rem 0.55rem 1.5rem;
+  background: rgb(var(--bg-rgb) / 0.72);
+  border-color: var(--line);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 10px 40px -18px rgb(var(--fg-rgb) / 0.25);
+}
+.nav.is-open .nav__inner { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; }
+
+/* Journey progress: fills from hero to footer as the mark travels. */
+.nav__progress {
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: -1px;
+  height: 1px;
+  background: var(--hl);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.nav.is-scrolled .nav__progress { opacity: 0.8; }
+.nav.is-open .nav__progress { opacity: 0; }
 
 .nav__logo { position: relative; z-index: 2; display: block; }
 .nav__logo img { width: auto; height: 22px; }
@@ -450,7 +490,7 @@ html.menu-open { overflow: hidden; }
 
 .nav__link {
   position: relative;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -559,13 +599,12 @@ html.menu-open { overflow: hidden; }
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: var(--bg);
   padding-block: calc(var(--nav-height) + 2rem) 6rem;
 }
 
 .hero__glow {
   position: absolute;
-  z-index: 0;
+  z-index: -2; /* beneath the journey layer, so it lights the mark rather than veiling it */
   width: 70vmax;
   height: 70vmax;
   right: -22vmax;
@@ -575,24 +614,20 @@ html.menu-open { overflow: hidden; }
   pointer-events: none;
 }
 
-.hero__canvas {
+/* Stand-in for the 3D mark (reduced motion, no WebGL). Hidden once the journey is running. */
+.hero__mark-static {
   position: absolute;
-  inset: 0;
   z-index: 1;
-  opacity: 0;
-  transition: opacity 1.6s ease 0.2s;
+  right: 9%;
+  top: 50%;
+  width: min(28vw, 400px);
+  translate: 0 -50%;
+  color: var(--fg);
+  opacity: 0.9;
+  transition: opacity 0.8s ease;
 }
-.hero__canvas.is-ready { opacity: 1; }
+.has-journey .hero__mark-static { opacity: 0; }
 
-.hero__overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgb(var(--bg-rgb) / 0.55) 0%, rgb(var(--bg-rgb) / 0) 55%),
-    linear-gradient(0deg, var(--bg) 0%, rgb(var(--bg-rgb) / 0) 22%);
-}
 
 .hero__container { position: relative; z-index: 3; }
 .hero__content { max-width: min(62rem, 100%); }
@@ -640,7 +675,7 @@ html.menu-open { overflow: hidden; }
 .hero__times { color: var(--hl); margin-inline: 0.85rem; font-weight: 300; }
 
 .hero__subline {
-  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-size: clamp(1.08rem, 1.4vw, 1.3rem);
   font-weight: 300;
   color: var(--text);
   max-width: 36rem;
@@ -709,7 +744,6 @@ html.menu-open { overflow: hidden; }
   overflow: hidden;
   border-block: 1px solid var(--line);
   padding-block: 1.6rem;
-  background: var(--bg);
 }
 .marquee__track {
   display: flex;
@@ -785,7 +819,7 @@ html.menu-open { overflow: hidden; }
 .pw { display: inline; }
 
 .positioning__about p {
-  font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+  font-size: clamp(1.06rem, 1.25vw, 1.16rem);
   color: var(--text);
   line-height: 1.8;
   max-width: 40ch;
@@ -836,7 +870,7 @@ html.menu-open { overflow: hidden; }
   justify-self: end;
   max-width: 22ch;
   text-align: right;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 300;
   line-height: 1.5;
   color: var(--text);
@@ -885,7 +919,7 @@ html.menu-open { overflow: hidden; }
 
 /* ─── Services ─── */
 
-.services { background: var(--bg); }
+.services { position: relative; }
 
 .services__body {
   display: grid;
@@ -951,7 +985,7 @@ html.menu-open { overflow: hidden; }
 
 .service-item__desc {
   padding-top: 1rem;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--text);
   max-width: 44ch;
   line-height: 1.7;
@@ -1026,95 +1060,174 @@ html.menu-open { overflow: hidden; }
   gap: 2rem;
   margin-top: clamp(3rem, 6vw, 5rem);
 }
-.services__footer p { color: var(--text); max-width: 42ch; line-height: 1.7; }
+.services__footer p { font-size: 1.05rem; color: var(--text); max-width: 42ch; line-height: 1.7; }
 
-/* ─── Work / showcase ─── */
+/* ─── Work / portfolio ───
+   Base layout is a native horizontal scroller (touch, tablets, reduced motion).
+   With .is-pinned (desktop), GSAP pins the section and drives the track instead. */
 
-.work { background: var(--bg-alt); padding-bottom: clamp(4rem, 8vw, 7rem); }
-
-.work__stack { position: relative; }
-.work-card__marker { display: block; height: 0; }
-
-.work-card {
-  position: sticky;
-  top: calc(64px + var(--i) * 14px);
-  height: calc(100svh - 64px - 3rem);
-  min-height: 560px;
-  padding-inline: clamp(0.75rem, 1.5vw, 1.5rem);
-  /* dwell: each card stays fully in view before the next one slides over it */
-  margin-bottom: 45svh;
-}
-.work-card:last-child { margin-bottom: 0; }
-
-.work-card__inner {
+.work {
   position: relative;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #000;
-  color: #fff;
-  transform-origin: 50% 0%;
-  will-change: transform;
+  background: var(--bg-alt);
+  padding-block: var(--section-space);
+  overflow: clip;
 }
 
-.work-card__media { position: absolute; inset: 0; overflow: hidden; }
-.work-card__img { object-fit: cover; will-change: transform; }
-.work-card__gradient {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.35) 38%, rgba(0, 0, 0, 0) 60%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.35), transparent 50%);
+.work__intro {
+  position: relative;
+  z-index: 1;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
 }
-.work-card__shade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
-
-.work-card__info {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: none;
-  display: grid;
-  grid-template-columns: auto 1fr minmax(18rem, 26rem);
-  align-items: end;
-  gap: clamp(1.5rem, 3vw, 3rem);
-  padding-block: clamp(1.75rem, 4vw, 3.25rem);
-}
-
-.work-card__index { font-size: 0.72rem; letter-spacing: 0.18em; color: rgba(255, 255, 255, 0.6); padding-bottom: 0.9rem; }
-.work-card__index span { color: var(--lime); }
-
-.work-card__title {
-  font-size: clamp(1.8rem, 4vw, 4.2rem);
-  line-height: 1;
-  color: #fff;
-}
-
-.work-card__discipline {
-  font-size: 0.68rem;
+.work__title { margin-bottom: 1.5rem; }
+.work__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 2.25rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--lime);
-  margin-bottom: 0.85rem;
+  color: var(--text-soft);
 }
-.work-card__desc { font-size: 0.92rem; color: rgba(255, 255, 255, 0.72); line-height: 1.7; }
+.work__hint-line { width: 3rem; height: 1px; background: currentColor; }
 
-.work__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-top: clamp(3rem, 6vw, 5rem);
-  padding-top: 2.5rem;
-  border-top: 1px solid var(--line);
+.work__viewport {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
 }
-.work__footer p { color: var(--text); }
+.work__viewport::-webkit-scrollbar { display: none; }
+
+.work__track {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(1.25rem, 2.2vw, 2.25rem);
+  width: max-content;
+  padding-inline: var(--gutter);
+}
+.work__spacer { display: none; }
+
+.pf-card {
+  width: clamp(17rem, 78vw, 26rem);
+  scroll-snap-align: start;
+  scroll-margin-left: var(--gutter);
+}
+.pf-card__frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #0b0b10;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+/* Wide images fill the height and pan sideways; tall ones fill the width and scroll down. */
+.pf-card[data-pan='x'] .pf-card__img { position: absolute; top: 0; left: 0; height: 100%; width: auto; max-width: none; }
+.pf-card[data-pan='y'] .pf-card__img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+.pf-card__img { will-change: transform; transition: filter 0.6s ease; }
+.pf-card__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  pointer-events: none;
+}
+.pf-card__index {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: #fff;
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.pf-card__info { padding-top: 1.35rem; }
+.pf-card__discipline {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--hl);
+  margin-bottom: 0.7rem;
+}
+.pf-card__title {
+  font-size: clamp(1.3rem, 1.9vw, 1.9rem);
+  line-height: 1.05;
+  color: var(--fg);
+  margin-bottom: 1rem;
+}
+.pf-card__services { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+
+.pf-card .tag { transition: border-color 0.4s ease, color 0.4s ease; }
+.pf-card:hover .tag,
+.pf-card.is-active .tag { border-color: rgb(var(--hl-rgb) / 0.4); color: var(--text-strong); }
+
+.work__outro {
+  width: clamp(15rem, 70vw, 22rem);
+  align-self: center;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-block: 2rem;
+}
+.work__outro p { font-size: 1.15rem; color: var(--text); line-height: 1.5; }
+
+.work__rail { display: flex; align-items: center; gap: 1.5rem; margin-top: clamp(2rem, 4vw, 3rem); }
+.work__count { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.18em; color: var(--text-soft); white-space: nowrap; }
+.work__count-current { color: var(--hl); }
+.work__rail-line { position: relative; flex: 1; height: 1px; background: var(--line); }
+.work__rail-fill { position: absolute; inset: 0; background: var(--hl); transform: scaleX(0); transform-origin: left; }
+
+/* Desktop, pinned: one full-screen stage. The intro reads as the first slide (the
+   journey mark frames its right half), then the cards travel in from the right. */
+@media (min-width: 1025px) {
+  .work.is-pinned { padding-block: 0; }
+  .work.is-pinned .work__pin {
+    position: relative;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: calc(var(--nav-height) + 1rem) 2.5rem;
+  }
+  .work.is-pinned .work__intro {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    translate: 0 -50%;
+    width: 50vw;
+    max-width: none;
+    margin: 0;
+    padding-right: 0;
+    will-change: transform;
+  }
+  .work.is-pinned .work__title { font-size: clamp(3rem, 6.4vw, 6.4rem); }
+  .work.is-pinned .work__viewport { overflow: visible; scroll-snap-type: none; }
+  .work.is-pinned .work__track { padding-inline: 0 var(--gutter); will-change: transform; align-items: center; }
+  .work.is-pinned .work__spacer { display: block; width: 100vw; flex-shrink: 0; margin-right: calc(-1 * clamp(1.25rem, 2.2vw, 2.25rem)); }
+  .work.is-pinned .pf-card { width: clamp(22rem, 28vw, 30rem); }
+  .work.is-pinned .pf-card__frame { aspect-ratio: auto; height: min(58svh, 36vw); }
+  .work.is-pinned .work__rail { position: absolute; left: 0; right: 0; bottom: 2.5rem; margin: 0; }
+
+  .pf-card__frame { transition: transform 0.9s var(--ease-standard); }
+  .pf-card:hover .pf-card__frame { transform: translateY(-6px); }
+}
 
 /* ─── Why Auverta ─── */
 
-.why { background: var(--bg); overflow: clip; }
+.why { overflow: clip; }
 
 .why__body {
   display: grid;
@@ -1181,7 +1294,7 @@ html.menu-open { overflow: hidden; }
   color: var(--fg);
   margin-bottom: 0.4rem;
 }
-.value__desc { font-size: 0.9rem; color: var(--text); line-height: 1.7; max-width: 46ch; }
+.value__desc { font-size: 1rem; color: var(--text); line-height: 1.7; max-width: 46ch; }
 
 .why__quote {
   margin-top: clamp(5rem, 11vw, 9rem);
@@ -1281,7 +1394,7 @@ html.menu-open { overflow: hidden; }
   color: var(--fg);
   margin-bottom: 1rem;
 }
-.process-step__desc { font-size: 0.92rem; color: var(--text); line-height: 1.7; }
+.process-step__desc { font-size: 1.02rem; color: var(--text); line-height: 1.7; }
 .process-step__deliverables { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
 
 /* ─── Final CTA ─── */
@@ -1289,7 +1402,6 @@ html.menu-open { overflow: hidden; }
 .cta {
   position: relative;
   overflow: hidden;
-  background: var(--bg);
   padding-block: clamp(9rem, 20vw, 17rem);
   text-align: center;
 }
@@ -1338,7 +1450,7 @@ html.menu-open { overflow: hidden; }
   align-items: start;
 }
 
-.contact__lead { margin-top: 1.5rem; color: var(--text); font-size: 1.02rem; line-height: 1.75; max-width: 38ch; }
+.contact__lead { margin-top: 1.5rem; color: var(--text); font-size: 1.12rem; line-height: 1.75; max-width: 38ch; }
 
 .contact__visual {
   position: relative;
@@ -1363,7 +1475,7 @@ html.menu-open { overflow: hidden; }
   color: var(--text-soft);
   margin-bottom: 0.5rem;
 }
-.contact__details dd { color: var(--text-strong); font-size: 0.95rem; }
+.contact__details dd { color: var(--text-strong); font-size: 1.02rem; }
 .contact__socials { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; }
 
 .contact__form { padding-top: 0.5rem; }
@@ -1415,18 +1527,20 @@ html.menu-open { overflow: hidden; }
 [data-theme='dark'] .form-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='white' stroke-opacity='.6'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
 }
-.form-select option { background: var(--bg-alt); color: var(--fg); }
+.form-select option { background: var(--surface); color: var(--fg); }
 
 .form-submit { display: flex; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-top: 2.75rem; }
-.form-note { font-size: 0.82rem; color: var(--text-soft); max-width: 36ch; line-height: 1.6; }
+.form-note { font-size: 0.9rem; color: var(--text-soft); max-width: 36ch; line-height: 1.6; }
 .form-note.is-error { color: #ff8a8a; }
 
-/* ─── Footer ─── */
+/* ─── Footer ───
+   The last stage of the scroll story: transparent over the journey layer, with the
+   lockup where the travelling mark settles beside the line-art wordmark. */
 
 .footer {
-  background: var(--bg);
+  position: relative;
   border-top: 1px solid var(--line);
-  padding-block: clamp(3.5rem, 7vw, 5.5rem) 2rem;
+  padding-block: clamp(4rem, 8vw, 6.5rem) 2rem;
 }
 .footer__top {
   display: grid;
@@ -1434,24 +1548,53 @@ html.menu-open { overflow: hidden; }
   gap: 3rem;
   align-items: start;
 }
-.footer__logo { width: auto; height: 26px; }
+.footer__statement {
+  font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  max-width: 22ch;
+}
 .footer__tagline {
-  margin-top: 1.1rem;
-  font-size: 0.66rem;
+  margin-top: 1.25rem;
+  font-size: 0.68rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-soft);
 }
-.footer__links { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 0.75rem 3rem; }
+.footer__links { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 0.85rem 3rem; padding-top: 0.25rem; }
 .footer__link {
-  font-size: 0.72rem;
+  position: relative;
+  font-size: 0.76rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text);
   transition: color 0.25s ease;
 }
-.footer__link:hover { color: var(--hl); }
+.footer__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 1px;
+  background: var(--hl);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-standard);
+}
+.footer__link:hover { color: var(--fg); }
+.footer__link:hover::after { transform: scaleX(1); transform-origin: left; }
 .footer__contact { justify-self: end; text-align: right; }
+.footer__label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 0.6rem;
+}
 .footer__email {
   font-size: clamp(1.25rem, 2vw, 1.7rem);
   font-weight: 500;
@@ -1461,8 +1604,34 @@ html.menu-open { overflow: hidden; }
 }
 .footer__email:hover { color: var(--hl); }
 .footer__socials { display: flex; justify-content: flex-end; gap: 1.5rem; margin-top: 1rem; }
-.footer__social { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-soft); transition: color 0.25s ease; }
+.footer__social { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-soft); transition: color 0.25s ease; }
 .footer__social:hover { color: var(--fg); }
+
+/* Lockup: [journey mark] + [AUVERTA in line art], the mark's height and the letters' cap height matched. */
+.lockup {
+  --lockup-h: clamp(2.6rem, 7vw, 7rem);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--lockup-h) * 0.32);
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+}
+.lockup__mark {
+  flex-shrink: 0;
+  height: var(--lockup-h);
+  aspect-ratio: 297 / 262;
+}
+.lockup__mark-svg { width: 100%; height: 100%; color: var(--fg); transition: opacity 0.6s ease; }
+.has-journey .lockup__mark-svg { opacity: 0; } /* the 3D mark settles here instead */
+.lockup__word { display: flex; line-height: 0.72; }
+.lockup__letter {
+  display: inline-block;
+  font-size: calc(var(--lockup-h) * 1.5); /* GHIGA cap height ≈ 0.66em, so caps match the mark */
+  line-height: 0.72;
+  padding-block: 0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--fg);
+  paint-order: stroke;
+}
 
 .footer__bottom {
   display: flex;
@@ -1470,10 +1639,10 @@ html.menu-open { overflow: hidden; }
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-top: clamp(3rem, 6vw, 5rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
   padding-top: 1.75rem;
   border-top: 1px solid var(--line);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   color: var(--text-soft);
 }
@@ -1490,10 +1659,6 @@ html.menu-open { overflow: hidden; }
   .nav__actions { margin-left: auto; }
   .nav__hamburger { display: flex; }
 
-  .hero__overlay {
-    background:
-      linear-gradient(0deg, var(--bg) 0%, rgb(var(--bg-rgb) / 0.55) 45%, rgb(var(--bg-rgb) / 0) 75%);
-  }
   .hero { align-items: flex-end; }
 
   .positioning__intro { grid-template-columns: 1fr; }
@@ -1516,19 +1681,6 @@ html.menu-open { overflow: hidden; }
   .service-item__media img { object-fit: cover; }
   .service-item__detail { grid-template-rows: 1fr; }
   .service-item.is-active .service-item__title { transform: none; }
-
-  .work-card {
-    position: relative;
-    top: auto;
-    height: auto;
-    min-height: 0;
-    margin-bottom: 1.25rem;
-  }
-  .work-card__inner { display: flex; flex-direction: column; }
-  .work-card__media { position: relative; aspect-ratio: 16 / 10; }
-  .work-card__gradient { background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), transparent 45%); }
-  .work-card__info { position: relative; grid-template-columns: 1fr; gap: 1rem; background: #0b0b10; }
-  .work-card__index { padding-bottom: 0; }
 
   .why__body { grid-template-columns: 1fr; }
   .why__map { max-width: 520px; }
@@ -1580,10 +1732,6 @@ html.menu-open { overflow: hidden; }
   .service-item__arrow { display: none; }
   .service-item__number { padding-top: 0.55rem; }
 
-  .work-card { padding-inline: 0.75rem; }
-  .work-card__inner { border-radius: 8px; }
-  .work-card__title { font-size: clamp(2.1rem, 9vw, 3rem); }
-
   /* keep the outer labels inside the viewport */
   .why__map { width: 70%; }
   .why__node { padding: 0.35rem 0.6rem; letter-spacing: 0.08em; font-size: 0.58rem; }
@@ -1595,6 +1743,7 @@ html.menu-open { overflow: hidden; }
   .form-submit .btn { width: 100%; }
 
   .footer__top { grid-template-columns: 1fr; gap: 2.25rem; }
+  .lockup { --lockup-h: 8vw; }
   .footer__links { grid-template-rows: repeat(5, auto); grid-auto-flow: row; }
   .footer__bottom { flex-direction: column; align-items: flex-start; }
 }

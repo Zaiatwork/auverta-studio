@@ -1,26 +1,14 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import dynamic from 'next/dynamic'
-import { gsap, ScrollTrigger, useGSAP, MQ } from '@/lib/gsap'
+import { useRef } from 'react'
+import { gsap, useGSAP, MQ } from '@/lib/gsap'
 import { PILLARS } from '@/lib/content'
+import BrandMark from './BrandMark'
 
-// WebGL is client-only and non-critical: load it after the headline paints.
-const HeroScene = dynamic(() => import('./HeroScene'), { ssr: false, loading: () => null })
-
+// The 3D mark is rendered by <IconJourney> (a fixed layer behind the page) so the same
+// object can travel from here to the footer. The SVG mark below only shows when it can't.
 export default function Hero() {
   const root = useRef<HTMLElement>(null)
-  const scroll = useRef(0)
-  const [sceneActive, setSceneActive] = useState(true)
-  const [sceneReady, setSceneReady] = useState(false)
-
-  // Pause 3D rendering whenever the hero is off-screen.
-  useEffect(() => {
-    if (!root.current) return
-    const io = new IntersectionObserver(([entry]) => setSceneActive(entry.isIntersecting), { threshold: 0 })
-    io.observe(root.current)
-    return () => io.disconnect()
-  }, [])
 
   useGSAP(
     () => {
@@ -38,23 +26,18 @@ export default function Hero() {
           .fromTo('[data-hero="actions"]', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 1 }, '<0.1')
           .fromTo('[data-hero="meta"]', { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, stagger: 0.1 }, '<0.2')
 
-        // Scroll-out: content drifts up and fades while the 3D mark splits apart.
+        // Scroll-out: content drifts up and fades while the mark sets off on its journey.
         gsap.to('.hero__content', {
           yPercent: -18,
           autoAlpha: 0,
           ease: 'none',
           scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom 20%', scrub: true },
         })
-      })
-
-      // The 3D mark reads scroll progress every frame.
-      ScrollTrigger.create({
-        trigger: root.current,
-        start: 'top top',
-        end: 'bottom top',
-        onUpdate: (self) => {
-          scroll.current = self.progress
-        },
+        gsap.to('.hero__glow', {
+          autoAlpha: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
+        })
       })
     },
     { scope: root }
@@ -63,10 +46,7 @@ export default function Hero() {
   return (
     <section className="hero" id="top" ref={root} aria-labelledby="hero-title">
       <div className="hero__glow" aria-hidden="true" />
-      <div className={`hero__canvas${sceneReady ? ' is-ready' : ''}`} aria-hidden="true">
-        <HeroScene scroll={scroll} active={sceneActive} onReady={() => setSceneReady(true)} />
-      </div>
-      <div className="hero__overlay" aria-hidden="true" />
+      <BrandMark className="hero__mark-static" />
 
       <div className="container hero__container">
         <div className="hero__content">

@@ -14,15 +14,21 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const coarse = window.matchMedia('(pointer: coarse)').matches
 
+    // Mobile browsers resize the viewport as the address bar shows/hides; re-measuring every
+    // pin mid-scroll causes visible jumps, so only real resizes trigger a refresh.
+    ScrollTrigger.config({ ignoreMobileResize: true })
+
     // Smooth wheel only on desktop pointers with motion allowed.
     // Touch devices keep native momentum scrolling, which feels better and costs nothing.
     let lenis: Lenis | null = null
     let tick: ((time: number) => void) | null = null
 
     if (!reduced && !coarse) {
+      // Lerp damping (frame-rate independent) instead of a fixed-duration ease: each wheel
+      // tick blends into the motion already under way, so fast or trackpad scrolling stays fluid.
       lenis = new Lenis({
-        duration: 1.1,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        lerp: 0.075,
+        wheelMultiplier: 0.9,
         smoothWheel: true,
       })
       setLenis(lenis)

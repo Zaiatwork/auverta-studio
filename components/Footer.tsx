@@ -1,15 +1,15 @@
-import Image from 'next/image'
 import { CONTACT_EMAIL, NAV_LINKS, SOCIALS } from '@/lib/content'
+import FooterLockup from './FooterLockup'
 
+// The final stage of the scroll story: the journey mark settles into the lockup here.
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer__top">
           <div className="footer__brand">
-            <a href="#top" aria-label="Auverta, back to top">
-              <Image src="/brand/auverta-logo-white.png" alt="Auverta" width={1534} height={288} className="footer__logo" />
-            </a>
+            <p className="section-eyebrow">Auverta</p>
+            <p className="footer__statement">A creative technology and digital growth studio.</p>
             <p className="footer__tagline">Strategy × Design × Technology × AI × Growth</p>
           </div>
 
@@ -26,6 +26,7 @@ export default function Footer() {
           </nav>
 
           <div className="footer__contact">
+            <p className="footer__label">Start a project</p>
             <a href={`mailto:${CONTACT_EMAIL}`} className="footer__email">
               {CONTACT_EMAIL}
             </a>
@@ -40,6 +41,8 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+
+        <FooterLockup />
 
         <div className="footer__bottom">
           <p>© 2026 auverta.studio</p>

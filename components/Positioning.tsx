@@ -56,7 +56,7 @@ export default function Positioning() {
           const tl = gsap.timeline({
             defaults: { ease: 'power2.inOut', duration: 1 },
             scrollTrigger: desktop
-              ? { trigger: '.positioning__stage', start: 'top top', end: `+=${rows.length * 55}%`, pin: true, scrub: 0.6 }
+              ? { id: 'eq-pin', trigger: '.positioning__stage', start: 'top top', end: `+=${rows.length * 55}%`, pin: true, scrub: 0.6 }
               : { trigger: '.positioning__stage', start: 'top 70%', end: 'bottom 60%', scrub: 0.6 },
           })
 
