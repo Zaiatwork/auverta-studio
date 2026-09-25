@@ -1,0 +1,54 @@
+import Image from 'next/image'
+import { CONTACT_EMAIL, NAV_LINKS, SOCIALS } from '@/lib/content'
+
+export default function Footer() {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer__top">
+          <div className="footer__brand">
+            <a href="#top" aria-label="Auverta, back to top">
+              <Image src="/brand/auverta-logo-white.png" alt="Auverta" width={1534} height={288} className="footer__logo" />
+            </a>
+            <p className="footer__tagline">Strategy × Design × Technology × AI × Growth</p>
+          </div>
+
+          <nav aria-label="Footer">
+            <ul className="footer__links">
+              {NAV_LINKS.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className="footer__link">
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="footer__contact">
+            <a href={`mailto:${CONTACT_EMAIL}`} className="footer__email">
+              {CONTACT_EMAIL}
+            </a>
+            <ul className="footer__socials">
+              {SOCIALS.map((s) => (
+                <li key={s.label}>
+                  <a href={s.href} className="footer__social" target="_blank" rel="noopener noreferrer">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="footer__bottom">
+          <p>© 2026 auverta.studio</p>
+          <p>Beyond Ordinary.</p>
+          <a href="#top" className="footer__top-link">
+            Back to top ↑
+          </a>
+        </div>
+      </div>
+    </footer>
+  )
+}

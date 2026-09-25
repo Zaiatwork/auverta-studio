@@ -1,0 +1,7 @@
+# Vercel CLI uploads from this machine. Listing ignores explicitly here means the
+# brand fonts in app/fonts (excluded from git) are still included in deployments.
+node_modules
+.next
+out
+.env*
+*.tsbuildinfo
