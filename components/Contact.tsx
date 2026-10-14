@@ -1,17 +1,19 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { gsap, useGSAP, MQ } from '@/lib/gsap'
 import { CONTACT_EMAIL, SERVICES, SOCIALS } from '@/lib/content'
 
-type Status = { kind: 'idle' | 'error' | 'sent'; message?: string }
+type Status = { kind: 'idle' | 'sending' | 'error' | 'sent'; message?: string }
 
-// There is no form backend in this prototype. Submitting composes the brief
-// into the visitor's email client so no enquiry is silently lost. Swap
-// `handleSubmit` for a Server Action or form service when one is chosen.
+// Posts JSON to the PHP endpoint in public/api/contact.php (static hosting, no Node).
 export default function Contact() {
   const root = useRef<HTMLElement>(null)
+  const openedAt = useRef(0)
+  useEffect(() => {
+    openedAt.current = Date.now()
+  }, [])
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 
   useGSAP(
@@ -38,7 +40,7 @@ export default function Contact() {
     { scope: root }
   )
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget
     if (!form.checkValidity()) {
@@ -46,25 +48,24 @@ export default function Contact() {
       setStatus({ kind: 'error', message: 'Please complete the highlighted fields.' })
       return
     }
-    const data = new FormData(form)
-    const name = String(data.get('name') ?? '').trim()
-    const subject = `New project enquiry: ${name}${data.get('company') ? ` (${data.get('company')})` : ''}`
-    const body = [
-      `Name: ${name}`,
-      `Email: ${data.get('email')}`,
-      data.get('company') ? `Company: ${data.get('company')}` : null,
-      `Interested in: ${data.get('service')}`,
-      '',
-      String(data.get('message') ?? ''),
-    ]
-      .filter((l) => l !== null)
-      .join('\n')
-
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    setStatus({
-      kind: 'sent',
-      message: `Your email app should open with the brief ready to send. If it doesn't, write to ${CONTACT_EMAIL}.`,
-    })
+    setStatus({ kind: 'sending', message: 'Sending...' })
+    const data = Object.fromEntries(new FormData(form))
+    try {
+      const res = await fetch('/api/contact.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, elapsed: Date.now() - openedAt.current }),
+      })
+      const json = await res.json().catch(() => null)
+      if (!res.ok || !json?.ok) throw new Error(json?.error ?? 'failed')
+      form.reset()
+      setStatus({ kind: 'sent', message: 'Thank you. We will reply within one working day.' })
+    } catch (err) {
+      setStatus({
+        kind: 'error',
+        message: `${err instanceof Error && err.message !== 'failed' ? err.message : 'Could not send.'} You can also write to ${CONTACT_EMAIL}.`,
+      })
+    }
   }
 
   return (
@@ -107,6 +108,10 @@ export default function Contact() {
 
         <form className="contact__form" onSubmit={handleSubmit} noValidate aria-describedby="form-status">
           <div className="form-grid">
+            <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px' }}>
+              <label htmlFor="website">Leave this empty</label>
+              <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="form-group">
               <label className="form-label" htmlFor="name">
                 Name
@@ -160,7 +165,7 @@ export default function Contact() {
           </div>
 
           <div className="form-submit">
-            <button type="submit" className="btn btn--primary" data-cursor="start">
+            <button type="submit" className="btn btn--primary" data-cursor="start" disabled={status.kind === 'sending'}>
               Send brief
               <span className="btn__arrow" aria-hidden="true">
                 →
@@ -172,7 +177,7 @@ export default function Contact() {
               role="status"
               aria-live="polite"
             >
-              {status.message ?? 'Opens your email app with the brief pre-filled.'}
+              {status.message ?? 'We reply within one working day.'}
             </p>
           </div>
         </form>
