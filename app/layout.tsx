@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import './pages.css'
+import JsonLd from '@/components/JsonLd'
+import { SOCIALS } from '@/lib/content'
 
 // Auverta's own typefaces, as used on auverta.studio: GHIGA for display
 // headlines, Grift for everything else. Self-hosted from app/fonts.
@@ -87,7 +89,20 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Auverta',
+            url: 'https://auverta.studio',
+            logo: 'https://auverta.studio/icon.svg',
+            email: 'info@auverta.studio',
+            sameAs: SOCIALS.map((s) => s.href),
+          }}
+        />
+        {children}
+      </body>
     </html>
   )
 }
