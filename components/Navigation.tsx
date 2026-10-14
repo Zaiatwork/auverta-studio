@@ -110,7 +110,7 @@ export default function Navigation() {
           <div className="nav__actions">
             <ThemeToggle />
             <a href="#contact" className="nav__cta" data-cursor="start">
-              Start a Project
+              Start a project
             </a>
           </div>
 
@@ -147,7 +147,7 @@ export default function Navigation() {
         </ul>
         <div className="nav__mobile-footer">
           <a href="#contact" className="btn btn--primary" onClick={closeMenu}>
-            Start a Project <span className="btn__arrow" aria-hidden="true">→</span>
+            Start a project <span className="btn__arrow" aria-hidden="true">→</span>
           </a>
           <a href={`mailto:${CONTACT_EMAIL}`} className="nav__mobile-mail">
             {CONTACT_EMAIL}

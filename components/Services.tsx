@@ -64,7 +64,6 @@ export default function Services() {
       <div className="container">
         <header className="section-header section-header--split">
           <div>
-            <p className="section-eyebrow">What We Build</p>
             <h2 className="section-title" id="services-title">
               Capabilities, <em>connected.</em>
             </h2>
@@ -145,7 +144,7 @@ export default function Services() {
         <div className="services__footer">
           <p>Not sure which capability fits? Start with a conversation and we&apos;ll map the right path.</p>
           <a href="#contact" className="btn btn--primary" data-cursor="start">
-            Discuss Your Project
+            Start a project
             <span className="btn__arrow" aria-hidden="true">
               →
             </span>

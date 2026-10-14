@@ -8,7 +8,6 @@ export default function Footer() {
       <div className="container">
         <div className="footer__top">
           <div className="footer__brand">
-            <p className="section-eyebrow">Auverta</p>
             <p className="footer__statement">A creative technology and digital growth studio.</p>
             <p className="footer__tagline">Strategy × Design × Technology × AI × Growth</p>
           </div>

@@ -29,8 +29,6 @@ export default function Hero() {
           .fromTo('.hero__line-inner', { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 1.4, stagger: 0.16 })
           .fromTo('[data-hero="sub"]', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 1 }, '-=0.9')
           .fromTo('[data-hero="actions"]', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 1 }, '<0.1')
-          .fromTo('[data-hero="meta"]', { autoAlpha: 0 }, { autoAlpha: 1, duration: 1 }, '<0.2')
-
         // Scroll: one scrubbed timeline over the hero's own height (no pin, so the journey's
         // scroll anchors stay where they are). The mark splits at 0.45vh; the type splits with it.
         gsap
@@ -90,10 +88,6 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="hero__scroll-indicator" data-hero="meta" aria-hidden="true">
-        <span className="hero__scroll-line" />
-        <span className="hero__scroll-text">Scroll</span>
-      </div>
     </section>
   )
 }

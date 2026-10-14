@@ -176,16 +176,12 @@ export default function Work() {
       <div className="work__pin">
         {/* Moves with the track on desktop (it reads as the first slide); stacks above it on smaller screens. */}
         <div className="work__intro container">
-          <p className="section-eyebrow">Showcase</p>
           <h2 className="section-title work__title" id="work-title">
             Work in <em>focus.</em>
           </h2>
           <p className="section-subtitle">
             Studio pieces across web, brand, AI and growth, showing the craft we bring to every engagement. Client case
             studies are shared on request.
-          </p>
-          <p className="work__hint" aria-hidden="true">
-            <span className="work__hint-line" /> Scroll to explore
           </p>
         </div>
 

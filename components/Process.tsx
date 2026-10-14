@@ -82,7 +82,6 @@ export default function Process() {
       <div className="container">
         <header className="section-header section-header--split">
           <div>
-            <p className="section-eyebrow">How We Work</p>
             <h2 className="section-title" id="process-title">
               Strategic <em>process.</em>
             </h2>

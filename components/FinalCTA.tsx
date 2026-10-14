@@ -11,8 +11,7 @@ export default function FinalCTA() {
       const mm = gsap.matchMedia()
       mm.add(MQ.motion, () => {
         const tl = gsap.timeline({ scrollTrigger: { trigger: root.current, start: 'top 65%' } })
-        tl.fromTo('.cta__eyebrow', { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8 })
-          .fromTo('.cta__line-inner', { yPercent: 110 }, { yPercent: 0, duration: 1.3, stagger: 0.12, ease: 'expo.out' }, '<0.1')
+        tl.fromTo('.cta__line-inner', { yPercent: 110 }, { yPercent: 0, duration: 1.3, stagger: 0.12, ease: 'expo.out' })
           .fromTo('.cta__actions', { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 1 }, '-=0.8')
 
         // Outlined backdrop word slides across as the section passes.
@@ -39,7 +38,6 @@ export default function FinalCTA() {
       </div>
 
       <div className="container cta__inner">
-        <p className="cta__eyebrow section-eyebrow section-eyebrow--center">Ready when you are</p>
         <h2 className="cta__headline" id="cta-title">
           <span className="cta__line">
             <span className="cta__line-inner">Let&apos;s build something</span>
@@ -52,7 +50,7 @@ export default function FinalCTA() {
         </h2>
         <div className="cta__actions">
           <a href="#contact" className="btn btn--primary btn--lg" data-cursor="start">
-            Start a Project
+            Start a project
             <span className="btn__arrow" aria-hidden="true">
               →
             </span>
