@@ -241,7 +241,6 @@ html.menu-open { overflow: hidden; }
 }
 .section-title em,
 .cta__headline em,
-.hero__headline-italic,
 .why__quote em {
   font-style: italic;
   color: var(--accent-2);
@@ -630,56 +629,49 @@ html.menu-open { overflow: hidden; }
 
 
 .hero__container { position: relative; z-index: 3; }
-.hero__content { max-width: min(62rem, 100%); }
 
-.hero__eyebrow {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--hl);
-  margin-bottom: 1.75rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.hero__eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* Base (portrait, phones): headline then copy, stacked at the foot of the hero. */
+.hero__content { display: flex; flex-direction: column; }
 
+/* GHIGA set at measure: "WHERE VISION" is 7.73em wide, "TAKES FORM." 7.24em. */
 .hero__headline {
-  font-size: clamp(2.1rem, 6.2vw, 6.8rem);
-  line-height: 0.98;
+  --stroke: 1px;
+  font-size: clamp(2.3rem, 11vw, 7rem);
+  line-height: 0.9;
   color: var(--fg);
 }
 .hero__line {
   display: block;
   overflow: hidden;
-  /* room for descenders/italics inside the mask */
-  padding: 0.02em 0.08em 0.08em 0;
-  margin-bottom: -0.08em;
+  /* room for the glyphs' overshoot inside the reveal mask */
+  padding: 0.04em 0.06em 0.06em 0;
+  margin-bottom: -0.06em;
+  will-change: transform;
 }
-.hero__line-inner { display: inline-block; will-change: transform; }
+.hero__line--form { text-align: right; }
+.hero__line-inner { display: inline-block; position: relative; will-change: transform; }
 
-.hero__pillars {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0;
-  margin-top: 2.25rem;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-strong);
+/* "Takes form.": line art (the footer wordmark's treatment) with a solid copy on top,
+   revealed left to right on scroll. Solid by default for no-JS and reduced motion. */
+.hero__form-outline {
+  color: transparent;
+  -webkit-text-stroke: var(--stroke) var(--fg);
+  paint-order: stroke;
 }
-.hero__pillars li { display: inline-flex; align-items: center; }
-.hero__times { color: var(--hl); margin-inline: 0.85rem; font-weight: 300; }
+.hero__form-fill {
+  position: absolute;
+  inset: 0;
+  color: var(--fg);
+  clip-path: inset(0% 0% 0% 0%);
+}
+
+.hero__body { margin-top: 2rem; max-width: 34rem; }
 
 .hero__subline {
-  font-size: clamp(1.08rem, 1.4vw, 1.3rem);
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
   font-weight: 300;
   color: var(--text);
-  max-width: 36rem;
-  margin-top: 1.5rem;
+  max-width: 36ch;
   line-height: 1.7;
 }
 
@@ -688,7 +680,37 @@ html.menu-open { overflow: hidden; }
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  margin-top: 2.75rem;
+  margin-top: 2.25rem;
+}
+
+/* Landscape: the split composition. The headline spans the full height with its lines at
+   top left and bottom right (the mark's diagonal); the copy sits in the middle left, clear
+   of the mark, which the journey places right of centre in landscape. */
+@media (min-aspect-ratio: 1/1) and (min-width: 769px) {
+  .hero { align-items: stretch; padding-bottom: 2.5rem; }
+  .hero__container { display: flex; }
+  .hero__content {
+    flex: 1;
+    display: grid;
+    grid-template: 1fr / 1fr;
+    min-height: calc(100svh - var(--nav-height) - 4.5rem);
+  }
+  .hero__headline {
+    --stroke: 1.5px;
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* bounded by height too, so the top line never runs into the mark on short screens */
+    font-size: clamp(2.6rem, min(9vw, 17svh), 12rem);
+  }
+  .hero__body {
+    grid-area: 1 / 1;
+    align-self: center;
+    justify-self: start;
+    max-width: min(34rem, 42vw);
+    margin-top: 0;
+  }
 }
 
 .hero__scroll-indicator {
@@ -721,17 +743,6 @@ html.menu-open { overflow: hidden; }
   100% { transform: translateY(100%); }
 }
 .hero__scroll-text {
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--text-soft);
-}
-
-.hero__year {
-  position: absolute;
-  bottom: 2.25rem;
-  right: var(--gutter);
-  z-index: 3;
   font-size: 0.62rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -1745,12 +1756,8 @@ html.menu-open { overflow: hidden; }
 
   .hero { padding-bottom: 7rem; }
   .hero__glow { right: -40vmax; top: 30%; width: 110vmax; height: 110vmax; }
-  .hero__headline { font-size: clamp(2.1rem, 10.5vw, 3.4rem); }
-  .hero__pillars { font-size: 0.62rem; letter-spacing: 0.16em; margin-top: 1.75rem; }
-  .hero__times { margin-inline: 0.55rem; }
-  .hero__actions { margin-top: 2.25rem; }
+  .hero__actions { margin-top: 2rem; }
   .hero__actions .btn { flex: 1 1 auto; }
-  .hero__year { display: none; }
 
   .eq-row { font-size: clamp(2.3rem, 12vw, 4rem); }
 
