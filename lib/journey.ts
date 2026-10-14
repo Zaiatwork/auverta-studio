@@ -17,8 +17,6 @@ export type Half = { x: number; y: number; s: number; r: number; o: number }
 export type JourneyState = { L: Half; R: Half; yaw: number; pitch: number; tilt: number }
 export type Keyframe = { at: number; state: JourneyState; ease?: string }
 
-export const MARK_ASPECT = 297 / 262 // width / height of the mark's outline (from the SVG)
-
 const joined = (x: number, y: number, s: number, r = 0, o = 1): { L: Half; R: Half } => ({
   L: { x, y, s, r, o },
   R: { x, y, s, r, o },
@@ -192,7 +190,7 @@ function compactKeys(): Keyframe[] {
 }
 
 /** Keep anchors strictly increasing, so a short page or odd layout never breaks interpolation. */
-function sanitize(keys: Keyframe[]) {
+export function sanitize(keys: Keyframe[]) {
   for (let i = 1; i < keys.length; i++) {
     if (keys[i].at <= keys[i - 1].at) keys[i].at = keys[i - 1].at + 1
   }

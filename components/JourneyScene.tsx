@@ -6,13 +6,9 @@ import { Environment, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { ScrollTrigger } from '@/lib/gsap'
+import { MARK_PATHS } from '@/components/BrandMark'
 import { buildKeyframes, emptyState, sampleJourney, type Half, type Keyframe } from '@/lib/journey'
 
-// The two strokes of the Auverta mark, straight from the brand favicon (512×512 viewBox).
-const MARK_PATHS = [
-  'M124.96,129.8c-5.94-7.22-17.65-3.02-17.65,6.33v235.11c0,11.18,15.59,13.88,19.35,3.35l28.15-78.88c2.2-6.15,9.62-8.56,15.01-4.87l143.25,98.17c9.52,6.52,20.66-5.64,13.32-14.55L124.96,129.8Z',
-  'M403.85,140c-.04-11.18-15.64-13.82-19.36-3.28l-27.87,78.98c-2.17,6.16-9.59,8.6-15,4.92l-143.6-97.65c-9.54-6.49-20.63,5.72-13.27,14.6l202.31,243.93c5.97,7.19,17.66,2.95,17.63-6.4l-.84-235.11Z',
-]
 const SVG_SCALE = 0.0118
 const MARK_HEIGHT = 262 * SVG_SCALE // world units at scale 1
 
