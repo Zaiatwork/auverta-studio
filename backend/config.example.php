@@ -1,5 +1,5 @@
 <?php
-// Copy to public_html/.private/config.php on the server (that folder has a deny-all .htaccess).
+// Copy to public_html/.auverta/config.php on the server (that folder has a deny-all .htaccess).
 // Never commit the real file.
 return [
     'db_host' => '127.0.0.1',
