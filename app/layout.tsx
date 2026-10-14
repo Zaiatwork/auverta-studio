@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
+import './pages.css'
 
 // Auverta's own typefaces, as used on auverta.studio: GHIGA for display
 // headlines, Grift for everything else. Self-hosted from app/fonts.

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { CONTACT_EMAIL, NAV_LINKS, SOCIALS } from '@/lib/content'
 import FooterLockup from './FooterLockup'
 
@@ -16,9 +17,9 @@ export default function Footer() {
             <ul className="footer__links">
               {NAV_LINKS.map((l) => (
                 <li key={l.href}>
-                  <a href={l.href} className="footer__link">
+                  <Link href={l.href} className="footer__link">
                     {l.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -45,7 +46,10 @@ export default function Footer() {
 
         <div className="footer__bottom">
           <p>© 2026 auverta.studio</p>
-          <p>Beyond Ordinary.</p>
+          <p className="footer__legal">
+            <Link href="/privacy/">Privacy</Link>
+            <Link href="/terms/">Terms</Link>
+          </p>
           <a href="#top" className="footer__top-link">
             Back to top ↑
           </a>

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { CONTACT_EMAIL, NAV_LINKS } from '@/lib/content'
 import { getLenis } from '@/lib/scroll'
 import ThemeToggle from './ThemeToggle'
@@ -9,7 +11,8 @@ import ThemeToggle from './ThemeToggle'
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
-  const [active, setActive] = useState<string | null>(null)
+  const pathname = usePathname()
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href)
   const [mobileOpen, setMobileOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const headerRef = useRef<HTMLElement>(null)
@@ -39,22 +42,6 @@ export default function Navigation() {
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  // Highlight the section currently in view.
-  useEffect(() => {
-    const ids = NAV_LINKS.map((l) => l.href.slice(1))
-    const sections = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[]
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(`#${e.target.id}`)
-        })
-      },
-      { rootMargin: '-45% 0px -50% 0px' }
-    )
-    sections.forEach((s) => io.observe(s))
-    return () => io.disconnect()
   }, [])
 
   // Mobile menu: lock scroll, close on Escape, return focus to the toggle.
@@ -87,21 +74,21 @@ export default function Navigation() {
         className={`nav${scrolled ? ' is-scrolled' : ''}${hidden && !mobileOpen ? ' is-hidden' : ''}${mobileOpen ? ' is-open' : ''}`}
       >
         <div className="container nav__inner">
-          <a href="#top" className="nav__logo" aria-label="Auverta, back to top" onClick={closeMenu}>
+          <Link href="/" className="nav__logo" aria-label="Auverta, home" onClick={closeMenu}>
             <Image src="/brand/auverta-logo-white.png" alt="Auverta" width={1534} height={288} preload className="logo-img" />
-          </a>
+          </Link>
 
           <nav aria-label="Main">
             <ul className="nav__links">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a
+                  <Link
                     href={link.href}
-                    className={`nav__link${active === link.href ? ' is-active' : ''}`}
-                    aria-current={active === link.href ? 'true' : undefined}
+                    className={`nav__link${isActive(link.href) ? ' is-active' : ''}`}
+                    aria-current={isActive(link.href) ? 'page' : undefined}
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -109,9 +96,9 @@ export default function Navigation() {
 
           <div className="nav__actions">
             <ThemeToggle />
-            <a href="#contact" className="nav__cta" data-cursor="start">
+            <Link href="/contact/" className="nav__cta" data-cursor="start">
               Start a project
-            </a>
+            </Link>
           </div>
 
           <button
@@ -138,17 +125,17 @@ export default function Navigation() {
         <ul className="nav__mobile-links">
           {NAV_LINKS.map((link, i) => (
             <li key={link.href} style={{ '--i': i } as React.CSSProperties}>
-              <a href={link.href} className="nav__mobile-link" onClick={closeMenu}>
+              <Link href={link.href} className="nav__mobile-link" onClick={closeMenu}>
                 <span className="nav__mobile-index">0{i + 1}</span>
                 {link.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
         <div className="nav__mobile-footer">
-          <a href="#contact" className="btn btn--primary" onClick={closeMenu}>
+          <Link href="/contact/" className="btn btn--primary" onClick={closeMenu}>
             Start a project <span className="btn__arrow" aria-hidden="true">→</span>
-          </a>
+          </Link>
           <a href={`mailto:${CONTACT_EMAIL}`} className="nav__mobile-mail">
             {CONTACT_EMAIL}
           </a>

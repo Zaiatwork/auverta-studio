@@ -18,7 +18,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     respond(405, ['ok' => false, 'error' => 'Method not allowed.']);
 }
 
-$configPath = dirname(__DIR__, 2) . '/private/config.php';
+// Hostinger uploads only reach public_html, so config sits in a deny-all folder there.
+$configPath = dirname(__DIR__) . '/.private/config.php';
 if (!is_file($configPath)) {
     error_log('contact.php: config missing');
     respond(500, ['ok' => false, 'error' => 'Server not configured.']);

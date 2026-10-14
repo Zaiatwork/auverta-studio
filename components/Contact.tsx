@@ -8,7 +8,8 @@ import { CONTACT_EMAIL, SERVICES, SOCIALS } from '@/lib/content'
 type Status = { kind: 'idle' | 'sending' | 'error' | 'sent'; message?: string }
 
 // Posts JSON to the PHP endpoint in public/api/contact.php (static hosting, no Node).
-export default function Contact() {
+export default function Contact({ asPageTitle = false }: { asPageTitle?: boolean }) {
+  const Title = asPageTitle ? 'h1' : 'h2'
   const root = useRef<HTMLElement>(null)
   const openedAt = useRef(0)
   useEffect(() => {
@@ -73,9 +74,9 @@ export default function Contact() {
       <div className="container contact__grid">
         <div className="contact__intro">
           <p className="section-eyebrow">Contact</p>
-          <h2 className="section-title" id="contact-title">
+          <Title className="section-title" id="contact-title">
             Start a <em>project.</em>
-          </h2>
+          </Title>
           <p className="contact__lead">
             Tell us where you are and where you want to be. We&apos;ll come back with a clear next step.
           </p>
