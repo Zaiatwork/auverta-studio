@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import { gsap, useGSAP, MQ } from '@/lib/gsap'
-import BrandMark from './BrandMark'
+import BrandMark from '@/components/ui/BrandMark'
 
 const WORD = 'AUVERTA'
 

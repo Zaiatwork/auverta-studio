@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import PageHero from '@/components/PageHero'
-import Reveal from '@/components/Reveal'
-import CtaBand from '@/components/CtaBand'
+import PageHero from '@/components/sections/PageHero'
+import Reveal from '@/components/ui/Reveal'
+import CtaBand from '@/components/sections/CtaBand'
 import { ABOUT } from '@/lib/pages'
 import { DISCIPLINES, VALUES } from '@/lib/content'
 

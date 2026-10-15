@@ -1,6 +1,7 @@
 'use client'
 
 import type Lenis from 'lenis'
+import { prefersReducedMotion } from '@/lib/gsap'
 
 let lenis: Lenis | null = null
 
@@ -15,7 +16,7 @@ export function scrollToTarget(target: string | HTMLElement, offset = -72) {
   const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target
   if (!el && target !== '#top') return
 
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reduced = prefersReducedMotion()
 
   // Links inside the mobile menu fire while the page is still scroll-locked;
   // release the lock now rather than waiting for the menu's effect to run.

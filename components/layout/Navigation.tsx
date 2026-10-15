@@ -4,45 +4,19 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CONTACT_EMAIL, NAV_LINKS } from '@/lib/content'
+import { NAV_LINKS } from '@/lib/content'
+import { CONTACT_EMAIL } from '@/lib/config/env'
 import { getLenis } from '@/lib/scroll'
-import ThemeToggle from './ThemeToggle'
+import { useNavScroll } from '@/hooks/useNavScroll'
+import ThemeToggle from '@/components/layout/ThemeToggle'
 
 export default function Navigation() {
-  const [scrolled, setScrolled] = useState(false)
-  const [hidden, setHidden] = useState(false)
   const pathname = usePathname()
   const isActive = (href: string) => pathname === href || pathname.startsWith(href)
   const [mobileOpen, setMobileOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const headerRef = useRef<HTMLElement>(null)
-
-  // Floating bar after leaving the top; hide while scrolling down, reveal on scroll up.
-  // The hairline under the bar tracks the journey's progress from hero to footer.
-  useEffect(() => {
-    let lastY = window.scrollY
-    let ticking = false
-    const update = () => {
-      const y = window.scrollY
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      headerRef.current?.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0))
-      setScrolled(y > 40)
-      if (Math.abs(y - lastY) > 6) {
-        setHidden(y > lastY && y > window.innerHeight * 0.6)
-        lastY = y
-      }
-      ticking = false
-    }
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true
-        requestAnimationFrame(update)
-      }
-    }
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const { scrolled, hidden } = useNavScroll(headerRef)
 
   // Mobile menu: lock scroll, close on Escape, return focus to the toggle.
   useEffect(() => {

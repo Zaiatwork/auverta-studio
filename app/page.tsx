@@ -1,45 +1,31 @@
-import Navigation from '@/components/Navigation'
-import Hero from '@/components/Hero'
-import Marquee from '@/components/Marquee'
-import Positioning from '@/components/Positioning'
-import Services from '@/components/Services'
-import Work from '@/components/Work'
-import WhyAuverta from '@/components/WhyAuverta'
-import Process from '@/components/Process'
-import FinalCTA from '@/components/FinalCTA'
-import Contact from '@/components/Contact'
-import Footer from '@/components/Footer'
-import CustomCursor from '@/components/CustomCursor'
-import SmoothScroll from '@/components/SmoothScroll'
-import IconJourney from '@/components/IconJourney'
+import SiteShell from '@/components/layout/SiteShell'
+import Hero from '@/components/sections/Hero'
+import Marquee from '@/components/sections/Marquee'
+import Positioning from '@/components/sections/Positioning'
+import Services from '@/components/sections/Services'
+import Work from '@/components/sections/Work'
+import WhyAuverta from '@/components/sections/WhyAuverta'
+import Process from '@/components/sections/Process'
+import FinalCTA from '@/components/sections/FinalCTA'
+import Contact from '@/components/sections/Contact'
+import IconJourney from '@/components/three/IconJourney'
 
 // Server component: sections that need the browser opt in with 'use client'
 // individually. Testimonials are intentionally omitted until real client
 // quotes exist; the live site only has placeholder text.
 export default function HomePage() {
   return (
-    <>
-      <a className="skip-link" href="#main">
-        Skip to content
-      </a>
-      <CustomCursor />
-      {/* The travelling Auverta mark: one fixed layer behind every section, hero to footer. */}
-      <IconJourney />
-      <SmoothScroll>
-        <Navigation />
-        <main id="main">
-          <Hero />
-          <Marquee />
-          <Positioning />
-          <Services />
-          <Work />
-          <WhyAuverta />
-          <Process />
-          <FinalCTA />
-          <Contact />
-        </main>
-        <Footer />
-      </SmoothScroll>
-    </>
+    // The travelling Auverta mark: one fixed layer behind every section, hero to footer.
+    <SiteShell backdrop={<IconJourney />}>
+      <Hero />
+      <Marquee />
+      <Positioning />
+      <Services />
+      <Work />
+      <WhyAuverta />
+      <Process />
+      <FinalCTA />
+      <Contact />
+    </SiteShell>
   )
 }

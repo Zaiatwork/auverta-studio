@@ -6,7 +6,7 @@ import { Environment, Lightformer } from '@react-three/drei'
 import * as THREE from 'three'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
 import { ScrollTrigger } from '@/lib/gsap'
-import { MARK_PATHS } from '@/components/BrandMark'
+import { MARK_PATHS } from '@/components/ui/BrandMark'
 import { buildKeyframes, emptyState, sampleJourney, type Half, type Keyframe } from '@/lib/journey'
 
 const SVG_SCALE = 0.0118
@@ -31,7 +31,7 @@ function useMarkGeometries(quality: 'high' | 'low') {
         bevelSegments: quality === 'high' ? 6 : 2,
         curveSegments: quality === 'high' ? 24 : 8,
       })
-      // SVG space → scene space: centre on the mark, flip Y. Both halves share this origin,
+      // SVG space â†’ scene space: centre on the mark, flip Y. Both halves share this origin,
       // so identical transforms put them back together as the complete mark.
       geo.translate(-256, -258, -23)
       geo.scale(SVG_SCALE, -SVG_SCALE, SVG_SCALE)
@@ -64,6 +64,7 @@ function Journey({ pointer, quality, reduced }: { pointer: React.RefObject<Point
   const target = useRef(emptyState())
   const current = useRef<ReturnType<typeof emptyState> | null>(null)
   const intro = useRef(reduced ? 1 : 0)
+  const spin = useRef({ angle: 0, lastY: -1 })
 
   useEffect(() => () => mats.forEach((m) => m.dispose()), [mats])
 
@@ -115,6 +116,15 @@ function Journey({ pointer, quality, reduced }: { pointer: React.RefObject<Point
     cur.pitch = damp(cur.pitch, tgt.pitch, 4)
     cur.tilt = damp(cur.tilt, tgt.tilt, 4)
 
+    // Burst spin: scroll speed turns the mark about its vertical axis, then it settles face-on
+    // on the nearest full turn, so a quick flick is a coin flip and a slow scroll barely moves it.
+    const sp = spin.current
+    const sy = window.scrollY
+    if (sp.lastY >= 0) sp.angle = THREE.MathUtils.clamp(sp.angle + THREE.MathUtils.clamp(sy - sp.lastY, -150, 150) * 0.004, -4 * Math.PI, 4 * Math.PI)
+    sp.lastY = sy
+    const home = Math.round(sp.angle / (2 * Math.PI)) * 2 * Math.PI
+    sp.angle = damp(sp.angle, home, 2.5)
+
     // Intro: the halves travel in from a split and lock together (~1.6s).
     if (intro.current < 1) {
       intro.current = Math.min(1, intro.current + dt / 1.6)
@@ -126,7 +136,7 @@ function Journey({ pointer, quality, reduced }: { pointer: React.RefObject<Point
     const p = pointer.current ?? { x: 0, y: 0 }
     const t = state.clock.elapsedTime
     const sway = reduced ? 0 : cur.tilt
-    const yaw = cur.yaw + (p.x * 0.35 + Math.sin(t * 0.25) * 0.06) * sway
+    const yaw = cur.yaw + sp.angle + (p.x * 0.35 + Math.sin(t * 0.25) * 0.06) * sway
     const pitch = cur.pitch + (-p.y * 0.22 + Math.cos(t * 0.2) * 0.04) * sway
     if (sway > 0.05) moving = true
 

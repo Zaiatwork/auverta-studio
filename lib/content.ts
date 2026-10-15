@@ -2,10 +2,6 @@
 // Copy is drawn from the live auverta.studio site. No clients, results,
 // statistics or testimonials are invented — add real ones here when available.
 
-// NOTE: the live site links to "info@dev.auverta", which is not a valid address.
-// Confirm the correct inbox before launch.
-export const CONTACT_EMAIL = 'info@auverta.studio'
-
 export const SOCIALS = [
   { label: 'Instagram', href: 'https://www.instagram.com/auverta.studio' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/company/auverta/' },
@@ -19,8 +15,6 @@ export const NAV_LINKS = [
   { label: 'Process', href: '/process/' },
   { label: 'Contact', href: '/contact/' },
 ]
-
-export const PILLARS = ['Strategy', 'Design', 'Technology', 'AI', 'Growth'] as const
 
 export type Service = {
   number: string

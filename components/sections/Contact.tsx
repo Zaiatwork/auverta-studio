@@ -1,21 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import Image from 'next/image'
 import { gsap, useGSAP, MQ } from '@/lib/gsap'
-import { CONTACT_EMAIL, SERVICES, SOCIALS } from '@/lib/content'
+import { SERVICES, SOCIALS } from '@/lib/content'
+import { CONTACT_EMAIL } from '@/lib/config/env'
+import { useContactForm } from '@/hooks/useContactForm'
 
-type Status = { kind: 'idle' | 'sending' | 'error' | 'sent'; message?: string }
-
-// Posts JSON to the PHP endpoint in public/api/contact.php (static hosting, no Node).
+// Presentation only: submission lives in useContactForm → lib/api/contact (PHP endpoint, no Node).
 export default function Contact({ asPageTitle = false }: { asPageTitle?: boolean }) {
   const Title = asPageTitle ? 'h1' : 'h2'
   const root = useRef<HTMLElement>(null)
-  const openedAt = useRef(0)
-  useEffect(() => {
-    openedAt.current = Date.now()
-  }, [])
-  const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const { status, submit } = useContactForm()
 
   useGSAP(
     () => {
@@ -41,32 +37,9 @@ export default function Contact({ asPageTitle = false }: { asPageTitle?: boolean
     { scope: root }
   )
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const form = e.currentTarget
-    if (!form.checkValidity()) {
-      form.reportValidity()
-      setStatus({ kind: 'error', message: 'Please complete the highlighted fields.' })
-      return
-    }
-    setStatus({ kind: 'sending', message: 'Sending...' })
-    const data = Object.fromEntries(new FormData(form))
-    try {
-      const res = await fetch('/api/contact.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, elapsed: Date.now() - openedAt.current }),
-      })
-      const json = await res.json().catch(() => null)
-      if (!res.ok || !json?.ok) throw new Error(json?.error ?? 'failed')
-      form.reset()
-      setStatus({ kind: 'sent', message: 'Thank you. We will reply within one working day.' })
-    } catch (err) {
-      setStatus({
-        kind: 'error',
-        message: `${err instanceof Error && err.message !== 'failed' ? err.message : 'Could not send.'} You can also write to ${CONTACT_EMAIL}.`,
-      })
-    }
+    void submit(e.currentTarget)
   }
 
   return (

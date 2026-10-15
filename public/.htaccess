@@ -33,4 +33,9 @@ DirectoryIndex index.html index.php
   Require all denied
 </FilesMatch>
 
+# Shared PHP includes (public/api/_lib.php) are not endpoints.
+<FilesMatch "^_.*\.php$">
+  Require all denied
+</FilesMatch>
+
 ErrorDocument 404 /404.html

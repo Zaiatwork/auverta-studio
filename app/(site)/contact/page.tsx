@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Contact from '@/components/Contact'
+import Contact from '@/components/sections/Contact'
 
 export const metadata: Metadata = {
   title: 'Contact | Auverta',

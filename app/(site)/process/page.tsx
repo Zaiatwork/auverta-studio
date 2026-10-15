@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import PageHero from '@/components/PageHero'
-import Reveal from '@/components/Reveal'
-import CtaBand from '@/components/CtaBand'
-import JsonLd from '@/components/JsonLd'
+import PageHero from '@/components/sections/PageHero'
+import Reveal from '@/components/ui/Reveal'
+import CtaBand from '@/components/sections/CtaBand'
+import JsonLd from '@/components/ui/JsonLd'
 import { PROCESS } from '@/lib/content'
 import { FAQ_GENERAL } from '@/lib/pages'
 

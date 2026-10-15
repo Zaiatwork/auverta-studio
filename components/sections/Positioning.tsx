@@ -7,6 +7,16 @@ import { gsap, useGSAP, MQ } from '@/lib/gsap'
 const STATEMENT =
   'One studio where strategy, design, technology, AI and growth work as a single system.'
 
+const ABOUT =
+  'Auverta is a full-service digital growth studio fusing strategic creative direction with high-performance web development. From distinct brand identity to high-converting UI/UX, we craft digital solutions that elevate your presence, engage modern audiences and power measurable growth.'
+
+const words = (text: string) =>
+  text.split(' ').map((w, i) => (
+    <span className="pw" key={i}>
+      {w}{' '}
+    </span>
+  ))
+
 const EQUATION = [
   { word: 'Strategy', note: 'Research, positioning and growth briefs' },
   { word: 'Design', note: 'Brand identity, UI/UX and art direction' },
@@ -29,17 +39,15 @@ export default function Positioning() {
           { autoAlpha: 1, y: 0, stagger: 0.12, scrollTrigger: { trigger: '.positioning__intro', start: 'top 80%' } }
         )
 
-        // Statement: words brighten as you read down the page.
-        gsap.fromTo(
-          '.positioning__statement .pw',
-          { opacity: 0.14 },
-          {
-            opacity: 1,
-            stagger: 0.08,
-            ease: 'none',
-            scrollTrigger: { trigger: '.positioning__statement', start: 'top 78%', end: 'bottom 45%', scrub: true },
-          }
-        )
+        // Statement, then the paragraph beside it: words brighten as you read down the page.
+        const brighten = (sel: string, trigger: string, end: string) =>
+          gsap.fromTo(
+            sel,
+            { opacity: 0.14 },
+            { opacity: 1, stagger: 0.08, ease: 'none', scrollTrigger: { trigger, start: 'top 78%', end, scrub: true } }
+          )
+        brighten('.positioning__statement .pw', '.positioning__statement', 'bottom 45%')
+        brighten('.positioning__about .pw', '.positioning__about', 'bottom 30%')
       })
 
       // Equation: pinned on desktop, scrubbed in-flow on smaller screens.
@@ -104,20 +112,12 @@ export default function Positioning() {
               What We Are
             </p>
             <h2 className="positioning__statement" id="about-title">
-              {STATEMENT.split(' ').map((w, i) => (
-                <span className="pw" key={i}>
-                  {w}{' '}
-                </span>
-              ))}
+              {words(STATEMENT)}
             </h2>
           </div>
 
           <div className="positioning__about" data-fade>
-            <p>
-              Auverta is a full-service digital growth studio fusing strategic creative direction with
-              high-performance web development. From distinct brand identity to high-converting UI/UX, we craft
-              digital solutions that elevate your presence, engage modern audiences and power measurable growth.
-            </p>
+            <p>{words(ABOUT)}</p>
           </div>
         </div>
       </div>

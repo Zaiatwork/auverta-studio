@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { gsap, useGSAP, MQ } from '@/lib/gsap'
 import { DISCIPLINES, VALUES } from '@/lib/content'
-import { MARK_PATHS as MARK } from '@/components/BrandMark'
+import { MARK_PATHS as MARK } from '@/components/ui/BrandMark'
 
 const SIZE = 600
 const C = SIZE / 2

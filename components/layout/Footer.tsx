@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { CONTACT_EMAIL, NAV_LINKS, SOCIALS } from '@/lib/content'
-import FooterLockup from './FooterLockup'
+import { NAV_LINKS, SOCIALS } from '@/lib/content'
+import { CONTACT_EMAIL } from '@/lib/config/env'
+import FooterLockup from '@/components/layout/FooterLockup'
 
 // The final stage of the scroll story: the journey mark settles into the lockup here.
 export default function Footer() {

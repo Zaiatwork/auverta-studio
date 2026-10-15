@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import PageHero from '@/components/PageHero'
-import Reveal from '@/components/Reveal'
-import CtaBand from '@/components/CtaBand'
+import PageHero from '@/components/sections/PageHero'
+import Reveal from '@/components/ui/Reveal'
+import CtaBand from '@/components/sections/CtaBand'
 import { SERVICE_PAGES } from '@/lib/pages'
 
 export const metadata: Metadata = {

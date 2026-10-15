@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import { gsap, useGSAP, MQ } from '@/lib/gsap'
-import BrandMark from './BrandMark'
+import BrandMark from '@/components/ui/BrandMark'
 
 // The 3D mark is rendered by <IconJourney> (a fixed layer behind the page) so the same
 // object can travel from here to the footer. The SVG mark below only shows when it can't.

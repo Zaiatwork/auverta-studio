@@ -1,10 +1,10 @@
-/* ─────────────────────────────────────────
-   AUVERTA — GLOBAL STYLES
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   AUVERTA â€” GLOBAL STYLES
    Creative Technology + Digital Growth Studio
-   GHIGA display × Grift text, the brand's own typefaces.
+   GHIGA display Ã— Grift text, the brand's own typefaces.
    Light theme by default, dark theme via [data-theme='dark'].
    Accents follow the Auverta brand: deep violet + acid lime.
-───────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Tailwind is intentionally not imported: no markup uses its utilities, and its
    `.container` utility collided with the layout container below. */
@@ -31,7 +31,7 @@
   --section-space: clamp(6rem, 13vw, 11rem);
 }
 
-/* ─── Themes ─── Light is the default; dark is one click away (ThemeToggle). */
+/* â”€â”€â”€ Themes â”€â”€â”€ Light is the default; dark is one click away (ThemeToggle). */
 
 :root,
 [data-theme='light'] {
@@ -86,7 +86,7 @@
   --outline: rgb(var(--fg-rgb) / 0.06);
 }
 
-/* ─── Reset & base ─── */
+/* â”€â”€â”€ Reset & base â”€â”€â”€ */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -155,14 +155,14 @@ html.menu-open { overflow: hidden; }
 ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--violet); }
 
-/* ─── Pre-hydration reveal guard (see inline script in layout.tsx) ─── */
+/* â”€â”€â”€ Pre-hydration reveal guard (see inline script in layout.tsx) â”€â”€â”€ */
 
 .js [data-hero] { opacity: 0; visibility: hidden; }
 .js .hero__line-inner { transform: translateY(110%); }
 .reveal-fallback [data-hero] { opacity: 1 !important; visibility: visible !important; }
 .reveal-fallback .hero__line-inner { transform: none !important; }
 
-/* ─── Icon journey layer ───
+/* â”€â”€â”€ Icon journey layer â”€â”€â”€
    Fixed behind every section (z-index -1 paints above the page background but below all
    content), never interactive. Section backgrounds are transparent or translucent so the
    travelling mark reads through them; cards and images stay opaque and pass over it. */
@@ -177,7 +177,7 @@ html.menu-open { overflow: hidden; }
 }
 .has-journey .journey { opacity: 1; }
 
-/* ─── Display type (GHIGA) ─── */
+/* â”€â”€â”€ Display type (GHIGA) â”€â”€â”€ */
 
 :is(.hero__headline, .section-title, .eq-word, .pf-card__title, .lockup__letter, .cta__headline, .cta__bg-text,
   .service-item__title, .why__quote p, .nav__mobile-link, .marquee__item--display, .positioning__number, .process-step__number) {
@@ -188,7 +188,7 @@ html.menu-open { overflow: hidden; }
   font-synthesis: style; /* GHIGA ships upright only; italics are slanted, as on the live site */
 }
 
-/* ─── Layout primitives ─── */
+/* â”€â”€â”€ Layout primitives â”€â”€â”€ */
 
 .container {
   width: 100%;
@@ -202,7 +202,7 @@ html.menu-open { overflow: hidden; }
   padding-block: var(--section-space);
 }
 
-/* ─── Section headers (preserved system) ─── */
+/* â”€â”€â”€ Section headers (preserved system) â”€â”€â”€ */
 
 .section-header { margin-bottom: clamp(3rem, 8vw, 6rem); }
 
@@ -267,7 +267,7 @@ html.menu-open { overflow: hidden; }
   white-space: nowrap;
 }
 
-/* ─── Buttons & links ─── */
+/* â”€â”€â”€ Buttons & links â”€â”€â”€ */
 
 .btn {
   display: inline-flex;
@@ -335,7 +335,7 @@ html.menu-open { overflow: hidden; }
 }
 .link-underline:hover { background-size: 100% 1px; color: var(--fg); }
 
-/* ─── Custom cursor (desktop only; enabled by .has-cursor) ─── */
+/* â”€â”€â”€ Custom cursor (desktop only; enabled by .has-cursor) â”€â”€â”€ */
 
 .has-cursor,
 .has-cursor * { cursor: none !important; }
@@ -409,7 +409,7 @@ html.menu-open { overflow: hidden; }
 }
 .cursor[data-state='label'] .cursor__label { opacity: 1; transform: none; }
 
-/* ─── Navigation ─── */
+/* â”€â”€â”€ Navigation â”€â”€â”€ */
 
 .nav {
   position: fixed;
@@ -462,7 +462,7 @@ html.menu-open { overflow: hidden; }
 .nav.is-scrolled .nav__progress { opacity: 0.8; }
 .nav.is-open .nav__progress { opacity: 0; }
 
-.nav__logo { position: relative; z-index: 2; display: block; }
+.nav__logo { position: relative; z-index: 2; display: flex; align-items: center; min-height: 44px; }
 .nav__logo img { width: auto; height: 22px; }
 .logo-img,
 .nav__logo img,
@@ -471,8 +471,8 @@ html.menu-open { overflow: hidden; }
 .nav__actions { display: flex; align-items: center; gap: 0.75rem; }
 
 .theme-toggle {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -590,7 +590,7 @@ html.menu-open { overflow: hidden; }
 .nav__mobile-footer { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
 .nav__mobile-mail { font-size: 0.85rem; color: var(--text); }
 
-/* ─── Hero ─── */
+/* â”€â”€â”€ Hero â”€â”€â”€ */
 
 .hero {
   position: relative;
@@ -713,7 +713,7 @@ html.menu-open { overflow: hidden; }
   }
 }
 
-/* ─── Marquee ─── */
+/* â”€â”€â”€ Marquee â”€â”€â”€ */
 
 .marquee {
   overflow: hidden;
@@ -755,7 +755,7 @@ html.menu-open { overflow: hidden; }
   to { transform: translateX(-50%); }
 }
 
-/* ─── Positioning ─── */
+/* â”€â”€â”€ Positioning â”€â”€â”€ */
 
 .positioning {
   background: var(--bg-alt);
@@ -892,7 +892,7 @@ html.menu-open { overflow: hidden; }
   transform-origin: left;
 }
 
-/* ─── Services ─── */
+/* â”€â”€â”€ Services â”€â”€â”€ */
 
 .services { position: relative; }
 
@@ -1037,7 +1037,7 @@ html.menu-open { overflow: hidden; }
 }
 .services__footer p { font-size: 1.05rem; color: var(--text); max-width: 42ch; line-height: 1.7; }
 
-/* ─── Work / portfolio ───
+/* â”€â”€â”€ Work / portfolio â”€â”€â”€
    Base layout is a native horizontal scroller (touch, tablets, reduced motion).
    With .is-pinned (desktop), GSAP pins the section and drives the track instead. */
 
@@ -1203,6 +1203,8 @@ html.menu-open { overflow: hidden; }
     will-change: transform;
   }
   .work.is-pinned .work__title { font-size: clamp(3rem, 6.4vw, 6.4rem); }
+  /* Keep the paragraph clear of the journey mark, which sits at about 36vw while the intro is on screen. */
+  .work.is-pinned .work__intro p { max-width: 30vw; }
   .work.is-pinned .work__viewport { overflow: visible; scroll-snap-type: none; }
   .work.is-pinned .work__track { padding-inline: 0 var(--gutter); will-change: transform; align-items: center; }
   .work.is-pinned .work__spacer { display: block; width: 100vw; flex-shrink: 0; margin-right: calc(-1 * clamp(1.25rem, 2.2vw, 2.25rem)); }
@@ -1213,7 +1215,7 @@ html.menu-open { overflow: hidden; }
 
 }
 
-/* ─── Why Auverta ─── */
+/* â”€â”€â”€ Why Auverta â”€â”€â”€ */
 
 .why { overflow: clip; }
 
@@ -1298,7 +1300,7 @@ html.menu-open { overflow: hidden; }
   margin-inline: auto;
 }
 
-/* ─── Process ─── */
+/* â”€â”€â”€ Process â”€â”€â”€ */
 
 .process { background: var(--bg-alt); overflow: clip; }
 
@@ -1320,7 +1322,7 @@ html.menu-open { overflow: hidden; }
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-soft);
   transition: color 0.4s ease;
 }
 .process__rail-step.is-active { color: var(--hl); }
@@ -1385,7 +1387,7 @@ html.menu-open { overflow: hidden; }
 .process-step__desc { font-size: 1.02rem; color: var(--text); line-height: 1.7; }
 .process-step__deliverables { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
 
-/* ─── Final CTA ─── */
+/* â”€â”€â”€ Final CTA â”€â”€â”€ */
 
 .cta {
   position: relative;
@@ -1427,7 +1429,7 @@ html.menu-open { overflow: hidden; }
 .cta__line-inner { display: inline-block; }
 .cta__actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; margin-top: 3.25rem; }
 
-/* ─── Contact ─── */
+/* â”€â”€â”€ Contact â”€â”€â”€ */
 
 .contact { background: var(--bg-alt); }
 
@@ -1479,7 +1481,7 @@ html.menu-open { overflow: hidden; }
   text-transform: uppercase;
   color: var(--text-soft);
 }
-.form-optional { text-transform: none; letter-spacing: 0.02em; color: var(--text-faint); }
+.form-optional { text-transform: none; letter-spacing: 0.02em; color: var(--text-soft); }
 
 .form-input,
 .form-textarea,
@@ -1504,7 +1506,7 @@ html.menu-open { overflow: hidden; }
 .form-input:user-invalid,
 .form-textarea:user-invalid { border-color: #ff6b6b; }
 .form-input::placeholder,
-.form-textarea::placeholder { color: rgb(var(--fg-rgb) / 0.28); }
+.form-textarea::placeholder { color: rgb(var(--fg-rgb) / 0.5); } /* 4.5:1 on paper and on black */
 .form-textarea { resize: vertical; min-height: 140px; line-height: 1.7; }
 .form-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%230b0b12' stroke-opacity='.6'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
@@ -1521,7 +1523,7 @@ html.menu-open { overflow: hidden; }
 .form-note { font-size: 0.9rem; color: var(--text-soft); max-width: 36ch; line-height: 1.6; }
 .form-note.is-error { color: #ff8a8a; }
 
-/* ─── Footer ───
+/* â”€â”€â”€ Footer â”€â”€â”€
    The last stage of the scroll story: transparent over the journey layer, with the
    lockup where the travelling mark settles beside the line-art wordmark. */
 
@@ -1613,7 +1615,7 @@ html.menu-open { overflow: hidden; }
 .lockup__word { display: flex; line-height: 0.72; }
 .lockup__letter {
   display: inline-block;
-  font-size: calc(var(--lockup-h) * 1.5); /* GHIGA cap height ≈ 0.66em, so caps match the mark */
+  font-size: calc(var(--lockup-h) * 1.5); /* GHIGA cap height â‰ˆ 0.66em, so caps match the mark */
   line-height: 0.72;
   padding-block: 0.02em;
   color: transparent;
@@ -1636,7 +1638,7 @@ html.menu-open { overflow: hidden; }
 }
 .footer__top-link:hover { color: var(--fg); }
 
-/* ─── Responsive: laptop / tablet ─── */
+/* â”€â”€â”€ Responsive: laptop / tablet â”€â”€â”€ */
 
 @media (max-width: 1024px) {
   :root { --nav-height: 72px; }
@@ -1697,7 +1699,7 @@ html.menu-open { overflow: hidden; }
   .footer__socials { justify-content: flex-start; }
 }
 
-/* ─── Responsive: mobile ─── */
+/* â”€â”€â”€ Responsive: mobile â”€â”€â”€ */
 
 @media (max-width: 768px) {
   :root { --nav-height: 64px; }
@@ -1735,7 +1737,7 @@ html.menu-open { overflow: hidden; }
   .footer__bottom { flex-direction: column; align-items: flex-start; }
 }
 
-/* ─── Reduced motion ─── */
+/* â”€â”€â”€ Reduced motion â”€â”€â”€ */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

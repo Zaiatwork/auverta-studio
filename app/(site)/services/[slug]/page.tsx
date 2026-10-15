@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import PageHero from '@/components/PageHero'
-import Reveal from '@/components/Reveal'
-import CtaBand from '@/components/CtaBand'
-import JsonLd from '@/components/JsonLd'
-import { SERVICE_PAGES, SITE_URL } from '@/lib/pages'
+import PageHero from '@/components/sections/PageHero'
+import Reveal from '@/components/ui/Reveal'
+import CtaBand from '@/components/sections/CtaBand'
+import JsonLd from '@/components/ui/JsonLd'
+import { SERVICE_PAGES } from '@/lib/pages'
+import { SITE_URL } from '@/lib/config/env'
 
 export const dynamicParams = false
 

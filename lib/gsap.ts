@@ -11,12 +11,6 @@ if (typeof window !== 'undefined') {
   gsap.defaults({ ease: 'power3.out', duration: 0.9 })
 }
 
-export const EASE = {
-  out: 'power3.out',
-  expo: 'expo.out',
-  inOut: 'power2.inOut',
-} as const
-
 export const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches

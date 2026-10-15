@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import './pages.css'
-import JsonLd from '@/components/JsonLd'
+import JsonLd from '@/components/ui/JsonLd'
 import { SOCIALS } from '@/lib/content'
+import { CONTACT_EMAIL, SITE_URL } from '@/lib/config/env'
+import { BOOT_SCRIPT } from '@/lib/theme'
 
 // Auverta's own typefaces, as used on auverta.studio: GHIGA for display
 // headlines, Grift for everything else. Self-hosted from app/fonts.
@@ -29,7 +31,7 @@ const body = localFont({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://auverta.studio'),
+  metadataBase: new URL(SITE_URL),
   title: 'Auverta | Beyond Ordinary',
   description:
     'Auverta is a creative technology and digital growth studio. Strategy × Design × Technology × AI × Growth, combined into digital experiences that go beyond ordinary.',
@@ -48,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Auverta | Beyond Ordinary',
     description: 'Creative technology + digital growth studio. Strategy × Design × Technology × AI × Growth.',
-    url: 'https://auverta.studio',
+    url: SITE_URL,
     siteName: 'Auverta',
     type: 'website',
     images: [{ url: '/images/contact.webp', width: 1060, height: 986, alt: 'The Auverta mark' }],
@@ -72,12 +74,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-// Runs before first paint:
-// 1. Applies the saved theme (light by default) so there is no flash of the wrong theme.
-// 2. Lets CSS hide above-the-fold elements that GSAP will reveal, without hiding them for
-//    no-JS or reduced-motion visitors. If the hero never starts (e.g. a JS error), reveal after 3s.
-const bootScript = `(function(){var d=document.documentElement;var t='light';try{t=localStorage.getItem('auverta-theme')||'light'}catch(e){}d.dataset.theme=t;if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;d.classList.add('js');setTimeout(function(){if(!d.classList.contains('hero-in'))d.classList.add('reveal-fallback')},3000)})()`
-
 export default function RootLayout({
   children,
 }: {
@@ -87,7 +83,7 @@ export default function RootLayout({
     // suppressHydrationWarning: the inline script below sets data-theme and classes on <html> before hydration.
     <html lang="en" data-theme="light" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
       <body>
         <JsonLd
@@ -95,9 +91,9 @@ export default function RootLayout({
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Auverta',
-            url: 'https://auverta.studio',
-            logo: 'https://auverta.studio/icon.svg',
-            email: 'info@auverta.studio',
+            url: SITE_URL,
+            logo: `${SITE_URL}/icon.svg`,
+            email: CONTACT_EMAIL,
             sameAs: SOCIALS.map((s) => s.href),
           }}
         />

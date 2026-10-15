@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import PageHero from '@/components/PageHero'
-import { CONTACT_EMAIL } from '@/lib/content'
+import PageHero from '@/components/sections/PageHero'
+import { CONTACT_EMAIL } from '@/lib/config/env'
 import { LEGAL_UPDATED } from '@/lib/pages'
 
 export const metadata: Metadata = {

@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 
 // WebGL is client-only and non-critical: it loads after the headline paints.
-const JourneyScene = dynamic(() => import('./JourneyScene'), { ssr: false, loading: () => null })
+const JourneyScene = dynamic(() => import('@/components/three/JourneyScene'), { ssr: false, loading: () => null })
 
 /**
  * The travelling Auverta mark: a fixed layer painted behind all page content

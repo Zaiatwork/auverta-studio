@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Lenis from 'lenis'
-import { gsap, ScrollTrigger } from '@/lib/gsap'
+import { gsap, ScrollTrigger, prefersReducedMotion } from '@/lib/gsap'
 import { scrollToTarget, setLenis } from '@/lib/scroll'
 
 interface SmoothScrollProps {
@@ -11,7 +11,7 @@ interface SmoothScrollProps {
 
 export default function SmoothScroll({ children }: SmoothScrollProps) {
   useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = prefersReducedMotion()
     const coarse = window.matchMedia('(pointer: coarse)').matches
 
     // Mobile browsers resize the viewport as the address bar shows/hides; re-measuring every

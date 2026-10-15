@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
-import { CASE_PAGES, SERVICE_PAGES, SITE_URL } from '@/lib/pages'
+import { CASE_PAGES, SERVICE_PAGES } from '@/lib/pages'
+import { SITE_URL } from '@/lib/config/env'
 
 export const dynamic = 'force-static'
 

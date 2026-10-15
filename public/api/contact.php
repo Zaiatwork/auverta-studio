@@ -2,56 +2,14 @@
 declare(strict_types=1);
 
 // Contact form endpoint. Static site + PHP: validates, rate limits, stores, emails.
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
-header('X-Content-Type-Options: nosniff');
+require __DIR__ . '/_lib.php';
 
-function respond(int $code, array $body): never
-{
-    http_response_code($code);
-    echo json_encode($body, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    header('Allow: POST');
-    respond(405, ['ok' => false, 'error' => 'Method not allowed.']);
-}
-
-// Hostinger uploads only reach public_html, so config sits in a deny-all folder there (not .private: Hostinger already uses that name).
-$configPath = dirname(__DIR__) . '/.auverta/config.php';
-if (!is_file($configPath)) {
-    error_log('contact.php: config missing');
-    respond(500, ['ok' => false, 'error' => 'Server not configured.']);
-}
-$cfg = require $configPath;
-
-// Same-origin only (blocks cross-site form posts).
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin === '' || !in_array($origin, $cfg['allowed_origins'], true)) {
-    respond(403, ['ok' => false, 'error' => 'Forbidden.']);
-}
-
-if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
-    respond(415, ['ok' => false, 'error' => 'Unsupported media type.']);
-}
-$raw = file_get_contents('php://input', false, null, 0, 20000);
-$in = json_decode($raw ?: '', true);
-if (!is_array($in)) {
-    respond(400, ['ok' => false, 'error' => 'Invalid request.']);
-}
+[$cfg, $in] = api_boot();
 
 // Honeypot and time trap: bots fill the hidden field or submit instantly.
 $elapsed = (int) ($in['elapsed'] ?? 0);
 if (($in['website'] ?? '') !== '' || $elapsed < 2500) {
     respond(200, ['ok' => true]); // pretend success, store nothing
-}
-
-function clean(mixed $v, int $max): string
-{
-    $s = is_string($v) ? trim($v) : '';
-    $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $s) ?? '';
-    return mb_substr($s, 0, $max);
 }
 
 $name = clean($in['name'] ?? '', 120);
@@ -66,24 +24,11 @@ if ($name === '' || $message === '' || mb_strlen($message) < 10
     respond(422, ['ok' => false, 'error' => 'Please check your details and try again.']);
 }
 
-$ipHash = hash('sha256', $cfg['ip_salt'] . ($_SERVER['REMOTE_ADDR'] ?? ''));
+$ipHash = ip_hash($cfg);
 
 try {
-    $pdo = new PDO(
-        "mysql:host={$cfg['db_host']};dbname={$cfg['db_name']};charset=utf8mb4",
-        $cfg['db_user'],
-        $cfg['db_pass'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false]
-    );
-
-    // Max 5 attempts per hour per visitor.
-    $q = $pdo->prepare('SELECT COUNT(*) FROM rate_limits WHERE ip_hash = ? AND created_at > (NOW() - INTERVAL 1 HOUR)');
-    $q->execute([$ipHash]);
-    if ((int) $q->fetchColumn() >= 5) {
-        respond(429, ['ok' => false, 'error' => 'Too many requests. Please try again later.']);
-    }
-    $pdo->prepare('INSERT INTO rate_limits (ip_hash) VALUES (?)')->execute([$ipHash]);
-    $pdo->exec('DELETE FROM rate_limits WHERE created_at < (NOW() - INTERVAL 1 DAY)');
+    $pdo = db($cfg);
+    rate_limit($pdo, $ipHash);
 
     $ins = $pdo->prepare(
         'INSERT INTO leads (name, email, company, service, message, ip_hash, user_agent) VALUES (?,?,?,?,?,?,?)'

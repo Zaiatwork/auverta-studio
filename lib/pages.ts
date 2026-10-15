@@ -1,8 +1,6 @@
 // Copy for inner pages. Like content.ts: no invented clients, results or statistics.
 import { SERVICES, SHOWCASE, type Service, type Showcase } from './content'
 
-export const SITE_URL = 'https://auverta.studio'
-
 export const slugify = (s: string) =>
   s
     .toLowerCase()

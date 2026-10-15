@@ -36,23 +36,37 @@ Grift-Bold.ttf
 
 Without them, `next dev` and `next build` fail with a "font file not found" error.
 
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Dev server on port 3000 |
+| `npm run build` | Static export to `out/` |
+| `npm run lint` / `npm test` | ESLint / Vitest |
+
 ## Project structure
 
 ```
-app/            layout (fonts, metadata, theme boot script), page, global styles
-components/     one component per section, plus Navigation, CustomCursor, SmoothScroll, ThemeToggle
-lib/content.ts  all site copy in one place
-lib/gsap.ts     shared GSAP setup and breakpoints
-lib/scroll.ts   Lenis instance and in-page scrolling
-public/         brand logo and imagery from auverta.studio
+app/          routes, layouts, error boundaries
+components/   layout/ (page chrome), sections/, ui/ (reusables), three/ (3D)
+hooks/        stateful logic (contact form, nav scroll)
+lib/          config/env.ts, api/ (typed client), content, motion, theme
+public/       static assets, PHP endpoints in api/, .htaccess
+backend/      PHP config template and SQL schema
+docs/         ARCHITECTURE.md
 ```
+
+Layering rules, state management, the API structure and how to add an endpoint are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Configuration
+
+Copy `.env.example` to `.env.local` to override the public build-time values (site URL, contact email, API base). Defaults are production, so nothing is required. Server secrets (database, mail) never go in `.env*`; they live in `public_html/.auverta/config.php` on the server, created from `backend/config.example.php`.
 
 ## Content notes
 
 - All copy and imagery come from the live site. No clients, results, statistics or testimonials are invented; add real ones in `lib/content.ts` when available.
-- The contact email is a placeholder (`info@auverta.studio`) until the correct inbox is confirmed.
-- The contact form has no backend yet. It opens the visitor's email app with the brief pre-filled.
+- The contact form posts to `public/api/contact.php`, which stores the lead in MySQL (`backend/schema.sql`) and emails it.
 
 ## Deploying
 
-Previews are deployed from a machine that has the fonts, using the Vercel CLI (`npx vercel`). `.vercelignore` makes sure the font files are uploaded even though git ignores them. A Vercel project connected directly to this GitHub repo would fail to build, because the repo has no font files.
+The site is deployed to Hostinger shared hosting as static files: run `npm run build` on a machine that has the fonts, upload the contents of `out/` to `public_html/`, and create `.auverta/config.php` on the server.
